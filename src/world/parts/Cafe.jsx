@@ -9,7 +9,6 @@ import { useSet } from '../textures';
 // stands on screw jacks, and has its own back wall and canopy.
 export default function Cafe() {
   const wood = useSet('dark_wooden_planks', 2.4, 2.2);
-  const cedar = useSet('wood_planks', 2.2, 2);
   const W = CAFE.x1 - CAFE.x0;
   const D = CAFE.z1 - CAFE.z0;
   const cx = (CAFE.x0 + CAFE.x1) / 2;
@@ -21,8 +20,9 @@ export default function Cafe() {
     () => ({
       steel: new THREE.MeshStandardMaterial({ color: '#3a3d40', metalness: 0.85, roughness: 0.35 }),
       black: new THREE.MeshStandardMaterial({ color: '#0e0f10', roughness: 0.55, metalness: 0.2 }),
-      led: new THREE.MeshStandardMaterial({ color: '#ffb35c', emissive: '#ffa448', emissiveIntensity: 3.2, toneMapped: false }),
-      warm: new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffc070', emissiveIntensity: 6, toneMapped: false }),
+      led: new THREE.MeshStandardMaterial({ color: '#ffb45c', emissive: '#ffb45c', emissiveIntensity: 0.9, toneMapped: false }),
+      edge: new THREE.MeshStandardMaterial({ color: '#121315', metalness: 0.85, roughness: 0.3 }),
+      warm: new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffb45c', emissiveIntensity: 9, toneMapped: false }),
     }),
     []
   );
@@ -55,14 +55,14 @@ export default function Cafe() {
       </mesh>
       <mesh position={[cx, 0.602, cz]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial {...wood} color="#5b4334" roughness={0.45} />
+        <meshStandardMaterial {...wood} color="#3a302a" roughness={0.5} envMapIntensity={0.8} />
       </mesh>
       {/* blue LED along the outside edges */}
-      <mesh material={m.led} position={[cx, 0.585, CAFE.z1 + 0.005]}>
-        <boxGeometry args={[W, 0.025, 0.012]} />
+      <mesh material={m.edge} position={[cx, 0.56, CAFE.z1 + 0.015]}>
+        <boxGeometry args={[W, 0.1, 0.03]} />
       </mesh>
-      <mesh material={m.led} position={[CAFE.x1 + 0.005, 0.585, cz]}>
-        <boxGeometry args={[0.012, 0.025, D]} />
+      <mesh material={m.edge} position={[CAFE.x1 + 0.015, 0.56, cz]}>
+        <boxGeometry args={[0.03, 0.1, D + 0.03]} />
       </mesh>
 
       {/* steps down to the car park */}
@@ -73,7 +73,7 @@ export default function Cafe() {
           </mesh>
           <mesh position={[sx, y + 0.002, (z0 + z1) / 2]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[sw, z1 - z0]} />
-            <meshStandardMaterial {...wood} color="#8d6d52" roughness={0.7} />
+            <meshStandardMaterial {...wood} color="#3a302a" roughness={0.5} />
           </mesh>
           <mesh material={m.led} position={[sx, y - 0.015, z1 + 0.004]}>
             <boxGeometry args={[sw, 0.022, 0.01]} />
@@ -86,22 +86,22 @@ export default function Cafe() {
         <boxGeometry args={[CAFE.x1 - 3.7, CAFE.roof - CAFE.y, 0.1]} />
       </mesh>
 
-      {/* canopy: black top, cedar underside, warm edge strip and downlights */}
+      {/* canopy: black top, glossy dark metal underside, metal frame, recessed warm spots */}
       <group position={[(3.7 + CAFE.x1 + 0.1) / 2, CAFE.roof, cz + 0.05]}>
         <mesh material={m.black} position={[0, 0.06, 0]}>
           <boxGeometry args={[CAFE.x1 + 0.1 - 3.7, 0.12, D + 0.3]} />
         </mesh>
         <mesh position={[0, -0.002, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <planeGeometry args={[CAFE.x1 + 0.02 - 3.7, D + 0.22]} />
-          <meshStandardMaterial {...cedar} color="#5a3d29" roughness={0.7} />
+          <meshPhysicalMaterial color="#191b1e" roughness={0.22} metalness={0.75} clearcoat={0.6} clearcoatRoughness={0.1} />
         </mesh>
-        <mesh material={m.warm} position={[0, -0.015, (D + 0.3) / 2 - 0.06]}>
-          <boxGeometry args={[CAFE.x1 - 3.8, 0.02, 0.03]} />
+        <mesh material={m.edge} position={[0, 0.02, (D + 0.3) / 2 - 0.03]}>
+          <boxGeometry args={[CAFE.x1 + 0.1 - 3.7, 0.16, 0.06]} />
         </mesh>
         {[-1.2, 0, 1.2].map((x) =>
           [-0.9, 0.5, 1.6].map((z) => (
             <mesh key={`${x}${z}`} material={m.warm} position={[x, -0.006, z]} rotation={[Math.PI / 2, 0, 0]}>
-              <sphereGeometry args={[0.045, 12, 8]} />
+              <circleGeometry args={[0.04, 18]} />
             </mesh>
           ))
         )}
@@ -113,7 +113,6 @@ export default function Cafe() {
 
       {/* light for the café */}
       <pointLight position={[cx, CAFE.roof - 0.3, 0.9]} color="#ffcf9a" intensity={Q.fullLights ? 5 : 7} distance={6} decay={1.5} />
-      {Q.fullLights && <pointLight position={[cx, CAFE.roof - 0.3, -0.8]} color="#ffcf9a" intensity={3} distance={4} decay={1.5} />}
     </group>
   );
 }

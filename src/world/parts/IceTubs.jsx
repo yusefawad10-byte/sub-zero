@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { Q } from '../../quality';
 import { TUB, TUBS } from '../layout';
-import { C, rippleNormalTexture, rng } from '../canvasTextures';
+import { C, dropletNormalTexture, rippleNormalTexture, rng } from '../canvasTextures';
 
 const mistVert = /* glsl */ `
   uniform float uTime;
@@ -26,7 +26,7 @@ const mistFrag = /* glsl */ `
   varying float vA;
   void main() {
     float d = length(gl_PointCoord - 0.5);
-    float a = smoothstep(0.5, 0.0, d) * vA * 0.11;
+    float a = smoothstep(0.5, 0.0, d) * vA * 0.065;
     gl_FragColor = vec4(0.82, 0.94, 1.0, a);
   }
 `;
@@ -69,13 +69,55 @@ function Mist({ count }) {
 }
 
 const frameMat = new THREE.MeshStandardMaterial({ color: '#0d0e0f', metalness: 0.75, roughness: 0.35 });
-const iceMat = new THREE.MeshStandardMaterial({
-  color: '#bfe9ff',
-  emissive: '#4fbfff',
-  emissiveIntensity: 0.75,
-  roughness: 0.25,
+const iceMat = new THREE.MeshPhysicalMaterial({
+  color: '#e4f6ff',
+  roughness: 0.1,
+  clearcoat: 1,
+  clearcoatRoughness: 0.05,
+  transparent: true,
+  opacity: 0.88,
+  emissive: '#65CFFF',
+  emissiveIntensity: 0.35,
   flatShading: true,
 });
+
+// Water volume: bright icy blue at the bottom fading to darker clear blue at the top.
+const waterVert = /* glsl */ `
+  varying float vH;
+  varying vec3 vN;
+  varying vec3 vView;
+  uniform float uH;
+  void main() {
+    vH = clamp((position.y + uH * 0.5) / uH, 0.0, 1.0);
+    vec4 mv = modelViewMatrix * vec4(position, 1.0);
+    vN = normalize(normalMatrix * normal);
+    vView = normalize(-mv.xyz);
+    gl_Position = projectionMatrix * mv;
+  }
+`;
+const waterFrag = /* glsl */ `
+  varying float vH;
+  varying vec3 vN;
+  varying vec3 vView;
+  void main() {
+    vec3 bottom = vec3(0.22, 0.62, 1.0) * 1.7;
+    vec3 top = vec3(0.02, 0.14, 0.32);
+    vec3 c = mix(bottom, top, smoothstep(0.0, 0.85, vH));
+    float fres = pow(1.0 - abs(dot(vN, vView)), 2.0);
+    float a = mix(0.92, 0.62, vH) + fres * 0.15;
+    gl_FragColor = vec4(c + fres * 0.08, a);
+  }
+`;
+function waterMaterial(h) {
+  return new THREE.ShaderMaterial({
+    vertexShader: waterVert,
+    fragmentShader: waterFrag,
+    uniforms: { uH: { value: h } },
+    transparent: true,
+    depthWrite: false,
+    toneMapped: false,
+  });
+}
 
 function TubFrame() {
   const e = 0.035;
@@ -121,6 +163,7 @@ function CrushedIce({ seed }) {
 
 function Tub({ x, z, ripple, shell, cube, seed }) {
   const cubes = useRef([]);
+  const water = useMemo(() => waterMaterial(TUB.h - 0.2), []);
   const data = useMemo(() => {
     const r = rng(seed);
     return Array.from({ length: Q.low ? 4 : 7 }, () => ({
@@ -168,24 +211,23 @@ function Tub({ x, z, ripple, shell, cube, seed }) {
           <meshStandardMaterial color={C.ice} emissive={C.ice} emissiveIntensity={4} toneMapped={false} />
         </mesh>
       ))}
-      {/* glowing water */}
-      <mesh position={[0, 0.08 + (TUB.h - 0.16) / 2, 0]}>
-        <boxGeometry args={[iw, TUB.h - 0.16, il]} />
-        <meshStandardMaterial
-          color="#0b6f98"
-          emissive="#1f9fd6"
-          emissiveIntensity={0.6}
-          roughness={0.15}
-          transparent
-          opacity={0.82}
-        />
+      {/* underwater light panel on the floor of the tank */}
+      <mesh position={[0, 0.125, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[iw - 0.04, il - 0.04]} />
+        <meshStandardMaterial color="#65CFFF" emissive="#65CFFF" emissiveIntensity={3.2} toneMapped={false} />
+      </mesh>
+      {/* water volume with the bottom-to-top gradient */}
+      <mesh position={[0, 0.12 + (TUB.h - 0.2) / 2, 0]} material={water} renderOrder={2}>
+        <boxGeometry args={[iw, TUB.h - 0.2, il]} />
       </mesh>
       <mesh position={[0, TUB.h - 0.079, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[iw, il]} />
         <meshStandardMaterial
-          color="#1f8fbf"
-          emissive="#1aa6e0"
-          emissiveIntensity={0.55}
+          color="#2b7fae"
+          emissive="#378FC5"
+          emissiveIntensity={0.35}
+          transparent
+          opacity={0.75}
           normalMap={ripple}
           normalScale={new THREE.Vector2(0.7, 0.7)}
           roughness={0.04}
@@ -240,23 +282,19 @@ export default function IceTubs() {
 
   const shell = useMemo(
     () =>
-      Q.transmission
-        ? new THREE.MeshPhysicalMaterial({
-            color: '#e9f8ff',
-            roughness: 0.05,
-            transmission: 1,
-            thickness: 0.05,
-            ior: 1.49,
-            envMapIntensity: 1.2,
-          })
-        : new THREE.MeshStandardMaterial({
-            color: '#d7f2ff',
-            roughness: 0.08,
-            metalness: 0.1,
-            transparent: true,
-            opacity: 0.2,
-            depthWrite: false,
-          }),
+      new THREE.MeshPhysicalMaterial({
+        color: '#dff4ff',
+        roughness: 0.06,
+        metalness: 0.0,
+        clearcoat: 1,
+        clearcoatRoughness: 0.05,
+        transparent: true,
+        opacity: 0.16,
+        depthWrite: false,
+        envMapIntensity: 1.6,
+        normalMap: dropletNormalTexture(),
+        normalScale: new THREE.Vector2(0.4, 0.4),
+      }),
     []
   );
   const cube = useMemo(
@@ -264,13 +302,11 @@ export default function IceTubs() {
       new THREE.MeshPhysicalMaterial({
         color: '#eefaff',
         roughness: 0.12,
-        transmission: Q.transmission ? 0.85 : 0,
-        transparent: !Q.transmission,
-        opacity: Q.transmission ? 1 : 0.85,
-        thickness: 0.06,
-        ior: 1.31,
-        emissive: '#9fe4ff',
-        emissiveIntensity: 0.15,
+        clearcoat: 1,
+        transparent: true,
+        opacity: 0.88,
+        emissive: '#65CFFF',
+        emissiveIntensity: 0.3,
       }),
     []
   );
@@ -287,7 +323,7 @@ export default function IceTubs() {
       {TUBS.map((t, i) => (
         <Tub key={i} {...t} ripple={i ? ripple2 : ripple} shell={shell} cube={cube} seed={i * 17 + 3} />
       ))}
-      <pointLight position={[-2.45, 1.8, 2.3]} color={C.ice} intensity={7} distance={5.5} decay={1.6} />
+      <pointLight position={[-2.45, 0.9, 2.95]} color="#378FC5" intensity={4} distance={4} decay={1.6} />
     </group>
   );
 }

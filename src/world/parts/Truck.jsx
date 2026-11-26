@@ -5,7 +5,6 @@ import { Q } from '../../quality';
 import { BOX, PANEL } from '../layout';
 import { useSet } from '../textures';
 import { backLetteringTexture, logoTexture, sideLetteringTexture, signTexture } from '../canvasTextures';
-import { Spot } from './bits';
 
 // The shell, cab, chassis and wheels come from Blender (blender/build_truck.py -> truck.glb).
 // Lettering, logos, the interior lining and lights are added here on top.
@@ -27,7 +26,7 @@ function useTruckModel() {
           opacity: 0.6,
         });
       } else if (m.name === 'Paint') {
-        m.envMapIntensity = 1.3;
+        m.envMapIntensity = 1.6;
       } else if (m.name === 'Chrome' || m.name === 'Alu') {
         m.envMapIntensity = 1.6;
       }
@@ -87,7 +86,7 @@ export default function Truck() {
       {/* big SUB / ZERO lettering on the closed panel, speakers on the corners */}
       <mesh position={[PX + 0.02, 2.15, 1.356]}>
         <planeGeometry args={[1.75, 1.54]} />
-        <meshStandardMaterial map={tex.side} transparent roughness={0.4} emissive="#ffffff" emissiveMap={tex.side} emissiveIntensity={0.1} />
+        <meshStandardMaterial map={tex.side} transparent roughness={0.35} metalness={0.1} emissive="#ffffff" emissiveMap={tex.side} emissiveIntensity={0.05} polygonOffset polygonOffsetFactor={-2} />
       </mesh>
       <WallSpeaker position={[PANEL.x0 + 0.35, 3.0, 1.55]} />
       <WallSpeaker position={[BOX.x1 - 0.3, 2.85, 1.55]} />
@@ -140,21 +139,6 @@ export default function Truck() {
         </mesh>
       ))}
 
-      {/* headlight beams */}
-      {Q.fullLights &&
-        [-0.96, 0.96].map((z) => (
-          <Spot
-            key={z}
-            position={[-6.3, 1.1, z]}
-            target={[-14, 0, z * 1.6]}
-            color="#fff1dc"
-            intensity={18}
-            distance={18}
-            angle={0.45}
-            penumbra={0.6}
-            decay={1.6}
-          />
-        ))}
     </group>
   );
 }

@@ -9,7 +9,7 @@ import { logoTexture, rng } from '../canvasTextures';
 const F = 0.6; // truck floor
 const FRONT = SAUNA.z1; // glass front line
 
-function Bench({ z0, z1, y }) {
+function Bench({ z0, z1, y, slat }) {
   const n = 4;
   const d = (z1 - z0) / n;
   const w = SAUNA.x1 - SAUNA.x0 - 0.12;
@@ -19,7 +19,7 @@ function Bench({ z0, z1, y }) {
       {Array.from({ length: n }, (_, i) => (
         <mesh key={i} position={[cx, F + y, z0 + d * (i + 0.5)]}>
           <boxGeometry args={[w, 0.045, d - 0.018]} />
-          <meshStandardMaterial color="#e0a874" roughness={0.75} />
+          <meshStandardMaterial {...slat} color="#d8995e" roughness={0.6} />
         </mesh>
       ))}
       <mesh position={[cx, F + y / 2, z1 - 0.02]}>
@@ -37,6 +37,7 @@ function Bench({ z0, z1, y }) {
 
 export default function Sauna() {
   const cedar = useSet('wood_planks', 1, 1.6);
+  const slatTex = useSet('wood_planks', 0.4, 0.2);
   const logo = useMemo(() => logoTexture({ ring: '#3a2414', text: '#3a2414' }), []);
   const light = useRef();
   const ember = useRef();
@@ -60,12 +61,12 @@ export default function Sauna() {
   useFrame((s) => {
     const t = s.clock.elapsedTime;
     const f = 0.88 + 0.08 * Math.sin(t * 7.3) + 0.05 * Math.sin(t * 13.1 + 1) + 0.03 * Math.sin(t * 23.7);
-    if (light.current) light.current.intensity = 9 * f;
+    if (light.current) light.current.intensity = 10 * f;
     if (ember.current) ember.current.emissiveIntensity = 2.4 * f;
   });
 
   const H = SAUNA.top - F;
-  const wall = <meshStandardMaterial {...cedar} color="#f2bb7e" roughness={0.8} emissive="#ff8a3a" emissiveIntensity={0.08} />;
+  const wall = <meshStandardMaterial {...cedar} color="#d4925a" roughness={0.7} />;
   const leftW = SAUNA.door[0] - SAUNA.x0;
   const rightW = SAUNA.x1 - SAUNA.door[1];
   const doorW = SAUNA.door[1] - SAUNA.door[0];
@@ -128,8 +129,29 @@ export default function Sauna() {
       </mesh>
 
       {/* two-tier benches along the back wall */}
-      <Bench z0={-0.9} z1={-0.5} y={0.45} />
-      <Bench z0={-1.28} z1={-0.9} y={0.9} />
+      <Bench z0={-0.9} z1={-0.5} y={0.45} slat={slatTex} />
+      <Bench z0={-1.28} z1={-0.9} y={0.9} slat={slatTex} />
+      {/* horizontal battens on the back wall */}
+      {[1.35, 1.75, 2.15].map((y) => (
+        <mesh key={y} position={[cx, F + y, SAUNA.z0 + 0.025]}>
+          <boxGeometry args={[SAUNA.x1 - SAUNA.x0 - 0.1, 0.06, 0.025]} />
+          <meshStandardMaterial {...slatTex} color="#c9874f" roughness={0.65} />
+        </mesh>
+      ))}
+      {/* warm LED cove around the ceiling edges */}
+      <mesh material={led} position={[cx, SAUNA.top - 0.04, SAUNA.z0 + 0.04]}>
+        <boxGeometry args={[SAUNA.x1 - SAUNA.x0 - 0.12, 0.015, 0.015]} />
+      </mesh>
+      {[SAUNA.x0 + 0.04, SAUNA.x1 - 0.1].map((x) => (
+        <mesh key={x} material={led} position={[x, SAUNA.top - 0.04, (SAUNA.z0 + FRONT) / 2]}>
+          <boxGeometry args={[0.015, 0.015, FRONT - SAUNA.z0 - 0.1]} />
+        </mesh>
+      ))}
+      {/* small wooden entrance step onto the deck */}
+      <mesh position={[(SAUNA.door[0] + SAUNA.door[1]) / 2, F + 0.03, FRONT + 0.2]}>
+        <boxGeometry args={[SAUNA.door[1] - SAUNA.door[0] + 0.1, 0.06, 0.3]} />
+        <meshStandardMaterial {...slatTex} color="#b77a44" roughness={0.6} />
+      </mesh>
 
       {/* stone heater, front right */}
       <group position={[0.12, F, 0.75]}>
@@ -198,7 +220,7 @@ export default function Sauna() {
       </group>
 
       {/* warm light inside */}
-      <pointLight ref={light} position={[cx, F + 2.0, -0.1]} color="#ff9a4a" intensity={5} distance={4} decay={1.5} />
+      <pointLight ref={light} position={[cx, F + 2.0, -0.1]} color="#ffa654" intensity={10} distance={4.5} decay={1.3} />
     </group>
   );
 }

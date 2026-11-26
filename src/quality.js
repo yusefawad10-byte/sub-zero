@@ -27,7 +27,8 @@ export const Q = low
       low: false,
       reflections: true,
       shadows: true,
-      transmission: true,
+      // real glass transmission costs an extra full render pass; only on ?quality=high
+      transmission: forced === 'high',
       mist: 140,
       windows: 1,
       buildings: 64,

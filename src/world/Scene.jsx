@@ -71,19 +71,33 @@ function Moonlight() {
 }
 
 // Turn on shadows for solid meshes once everything is in.
+// The scene is static, so shadows are drawn once (and redrawn a few times while things settle)
+// instead of every frame, and only big objects cast them.
 function ShadowSetup() {
-  const { scene } = useThree();
+  const { scene, gl } = useThree();
   useEffect(() => {
     if (!Q.shadows) return;
+    const v = new THREE.Vector3();
     scene.traverse((o) => {
       if (!o.isMesh || o.userData.noShadow) return;
       const m = Array.isArray(o.material) ? o.material[0] : o.material;
-      if (!m || m.transparent || m.isShaderMaterial) return;
-      const emissive = m.emissiveIntensity > 1;
-      o.castShadow = !emissive;
       o.receiveShadow = true;
+      if (!m || m.transparent || m.isShaderMaterial || m.emissiveIntensity > 1) {
+        o.castShadow = false;
+        return;
+      }
+      if (!o.geometry.boundingSphere) o.geometry.computeBoundingSphere();
+      o.getWorldScale(v);
+      o.castShadow = o.geometry.boundingSphere.radius * Math.max(v.x, v.y, v.z) > 0.45;
     });
-  }, [scene]);
+    gl.shadowMap.autoUpdate = false;
+    gl.shadowMap.needsUpdate = true;
+    const ids = [300, 1200, 3000].map((ms) => setTimeout(() => (gl.shadowMap.needsUpdate = true), ms));
+    return () => {
+      ids.forEach(clearTimeout);
+      gl.shadowMap.autoUpdate = true;
+    };
+  }, [scene, gl]);
   return null;
 }
 

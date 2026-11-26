@@ -64,12 +64,13 @@ def srgb(h):
     return tuple((v / 12.92) if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in c)
 
 
-mat("Paint", srgb("#0c0d0e"), metal=0.25, rough=0.38, coat=1.0, coat_rough=0.12)
+mat("Paint", srgb("#090a0c"), metal=0.35, rough=0.32, coat=1.0, coat_rough=0.06)
+mat("Seam", srgb("#020203"), rough=0.6)
 mat("Glass", srgb("#16232c"), metal=0.0, rough=0.03, trans=0.85, ior=1.5)
 mat("Chrome", srgb("#c8ccd0"), metal=1.0, rough=0.16)
 mat("Alu", srgb("#8d9399"), metal=0.9, rough=0.32)
-mat("Rubber", srgb("#0b0b0b"), rough=0.88)
-mat("Trim", srgb("#1d1f21"), metal=0.4, rough=0.45)
+mat("Rubber", srgb("#0d0d0d"), rough=0.92)
+mat("Trim", srgb("#191b1e"), metal=0.6, rough=0.35)
 mat("Plastic", srgb("#191a1b"), rough=0.7)
 mat("Interior", srgb("#050505"), rough=0.95)
 mat("Lens", srgb("#ffffff"), rough=0.1, emit=srgb("#fff3df"), strength=6.0)
@@ -196,6 +197,14 @@ for (x, z) in [(X0 - 0.1, -1.4), (X1 + 0.1, -1.4), (X1 + 0.1, 1.32), (X0 - 0.1, 
 for z in (-1.4, 1.36):
     box("Trim_RoofRail", X0 - 0.12, X1 + 0.12, 3.54, 3.6, z - 0.035, z + 0.035, "Trim", bevel=0.008)
 box("Trim_BottomRail", X0 - 0.1, X1 + 0.1, 0.42, 0.5, -1.44, -1.36, "Trim", bevel=0.008)
+# panel seams on the box sides, as on real sandwich-panel bodies
+for x in (-2.4, -1.2, 0.0, 1.2, 2.4):
+    box("Seam_Back", x - 0.005, x + 0.005, 0.5, 3.5, -1.406, -1.399, "Seam")
+box("Seam_BackTop", X0, X1, 3.3, 3.31, -1.406, -1.399, "Seam")
+box("Seam_PanelTop", X0, -1.5, 3.3, 3.31, 1.35, 1.357, "Seam")
+box("Seam_PanelBottom", X0, -1.5, 0.66, 0.67, 1.35, 1.357, "Seam")
+for z in (-0.75, 0.6):
+    box("Seam_Front", X0 - 0.107, X0 - 0.1, 0.5, 3.5, z - 0.005, z + 0.005, "Seam")
 # rear doors outline and hinges on the rear end
 for z in (-0.04,):
     box("Rear_DoorSeam", X1 + 0.1, X1 + 0.112, 0.55, 3.35, z - 0.006, z + 0.006, "Trim")

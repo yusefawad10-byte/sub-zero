@@ -55,7 +55,7 @@ export default function Ground() {
             metalness={0.55}
             normalScale={new THREE.Vector2(0.6, 0.6)}
             blur={[220, 70]}
-            resolution={1024}
+            resolution={512}
             mixBlur={1}
             mixStrength={7}
             mixContrast={1}

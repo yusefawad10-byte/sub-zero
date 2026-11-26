@@ -34,13 +34,14 @@ export const TUBS = [
   { x: -3.0, z: 2.05 },
   { x: -1.97, z: 2.05 },
 ];
-// stretch table now lives inside the truck, along the back wall
-export const STRETCH = { x: 2.05, z: -0.88, w: 1.9, l: 0.7, h: 0.7 };
+// black massage table on the deck, in front of the shelving (as in the reference)
+export const STRETCH = { x: 1.85, z: 2.45, w: 1.9, l: 0.7, h: 0.7 };
+// illuminated wellness shelving along the back wall inside the truck
+export const WELLNESS = { x0: 0.6, x1: 3.5, z0: -1.27, z1: -0.95 };
 export const PLANTS = [
   { x: -1.2, y: 0.6, z: 1.55, s: 1.25 },
   { x: 3.3, y: 0.6, z: 3.6, s: 0.85 },
   { x: 7.1, y: 0.6, z: 2.3, s: 0.8 },
-  { x: 3.3, y: 0.6, z: -0.95, s: 0.9 },
 ];
 
 export const DJ = { x: -5.4, z: 6.2 };
@@ -83,12 +84,14 @@ export const JUMPS = {
   sauna: { pos: [-0.57, 2.1], look: [-0.57, 1.5, -1.0] },
   bar: { pos: [5.0, 2.35], look: [5.5, 2.0, -1.2] },
   outside: { pos: [SPAWN.x, SPAWN.z], look: SPAWN.look },
+  // roughly the camera angle of the reference render (used for visual checks)
+  reference: { pos: [-0.9, 8.6], look: [-0.3, 1.55, 0.6] },
 };
 
 export const HOTSPOTS = [
   { id: 'dj', x: DJ.x, z: DJ.z + 0.8, r: 4.0 },
   { id: 'tubs', x: -2.45, z: 2.3, r: 2.0 },
-  { id: 'stretch', x: STRETCH.x, z: STRETCH.z + 0.2, r: 1.2 },
+  { id: 'stretch', x: STRETCH.x, z: STRETCH.z + 0.3, r: 1.3 },
   { id: 'sauna', x: -0.6, z: 0.5, r: 1.9 },
   { id: 'bar', x: 5.5, z: 1.2, r: 1.9 },
   { id: 'middle', x: 1.2, z: 0.75, r: 0.75 },
@@ -114,6 +117,7 @@ export const COLLIDERS = [
   c(SAUNA.x0, SAUNA.x1, -1.3, -0.5, 0.6, 1.3), // benches
   c(-0.06, 0.3, 0.55, 0.93, 0.6, 1.5), // heater
   c(-0.27, -0.02, 1.2, 1.98, 0.6, 3), // open glass door
+  c(WELLNESS.x0 - 0.04, WELLNESS.x1 + 0.04, -1.3, WELLNESS.z1 + 0.05, 0.6, 3), // wellness shelving
   // café: back wall, bar block (counter + staff area + fridge), canopy posts
   c(3.7, CAFE.x1 + 0.05, -1.45, -1.28),
   c(BAR.x0 - 0.05, CAFE.x1 + 0.05, -1.3, BAR.z1 + 0.06, 0.6, 3),

@@ -111,7 +111,7 @@ export default function Palms() {
             <cylinderGeometry args={[0.08, 0.1, 0.12, 12]} />
             <meshStandardMaterial color="#111" emissive="#ffb050" emissiveIntensity={2.5} toneMapped={false} />
           </mesh>
-          {(Q.fullLights || i < 2) && (
+          {i < 2 && (
             <Spot
               position={[p.x + 0.45, 0.15, p.z + 0.45]}
               target={[p.x + p.lean[0], p.h * 0.75, p.z + p.lean[1]]}

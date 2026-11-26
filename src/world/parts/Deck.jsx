@@ -2,7 +2,8 @@ import { DECK, STEPS } from '../layout';
 import { useSet } from '../textures';
 import { C } from '../canvasTextures';
 
-const LED = <meshStandardMaterial color="#ffb35c" emissive="#ffa448" emissiveIntensity={3.2} toneMapped={false} />;
+const LED = <meshStandardMaterial color="#ffb45c" emissive="#ffb45c" emissiveIntensity={0.9} toneMapped={false} />;
+const EDGE = <meshStandardMaterial color="#121315" metalness={0.85} roughness={0.3} />;
 
 export default function Deck() {
   const wood = useSet('dark_wooden_planks', 4, 1.6);
@@ -20,7 +21,7 @@ export default function Deck() {
       </mesh>
       <mesh position={[0, 0.602, DECK.z0 + D / 2]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial {...wood} color="#5b4334" roughness={0.45} />
+        <meshStandardMaterial {...wood} color="#3a302a" roughness={0.5} envMapIntensity={0.8} />
       </mesh>
       {/* legs */}
       {[-3.4, -1.2, 1.2, 3.4].map((x) => (
@@ -29,11 +30,17 @@ export default function Deck() {
           <meshStandardMaterial color="#222" metalness={0.6} roughness={0.5} />
         </mesh>
       ))}
-      {/* blue LED along the deck edge */}
-      <mesh position={[0, 0.585, DECK.z1 + 0.005]}>
-        <boxGeometry args={[W, 0.025, 0.012]} />
-        {LED}
+      {/* dark metal edging around the platform */}
+      <mesh position={[0, 0.56, DECK.z1 + 0.015]}>
+        <boxGeometry args={[W + 0.04, 0.1, 0.03]} />
+        {EDGE}
       </mesh>
+      {[DECK.x0 - 0.015, DECK.x1 + 0.015].map((x) => (
+        <mesh key={x} position={[x, 0.56, (DECK.z0 + DECK.z1) / 2]}>
+          <boxGeometry args={[0.03, 0.1, D]} />
+          {EDGE}
+        </mesh>
+      ))}
 
       {/* two steps */}
       {STEPS.rows.map(([z0, z1, y]) => (
@@ -44,7 +51,7 @@ export default function Deck() {
           </mesh>
           <mesh position={[sx, y + 0.002, (z0 + z1) / 2]} rotation={[-Math.PI / 2, 0, 0]}>
             <planeGeometry args={[sw, z1 - z0]} />
-            <meshStandardMaterial {...wood} color="#8d6d52" roughness={0.7} />
+            <meshStandardMaterial {...wood} color="#3a302a" roughness={0.5} />
           </mesh>
           <mesh position={[sx, y - 0.015, z1 + 0.004]}>
             <boxGeometry args={[sw, 0.022, 0.01]} />

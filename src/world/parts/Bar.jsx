@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Q } from '../../quality';
 import { BAR, FRIDGE, SHELVES } from '../layout';
 import { useSet } from '../textures';
-import { C } from '../canvasTextures';
+import { C, leafTexture, rng } from '../canvasTextures';
 
 const F = 0.6;
 const SHAKE = ['#6b4430', '#e7a6b0', '#efe2c5'];
@@ -77,31 +77,65 @@ function Bottle({ p, m, i, h = 0.18 }) {
   );
 }
 
-function Leafy({ p, s = 1, hang = false }) {
-  // a small bushy plant (or a trailing one when hung)
-  const leaves = useMemo(() => {
-    const out = [];
-    for (let i = 0; i < (hang ? 14 : 9); i++) {
-      const a = i * 2.39;
-      const r = hang ? 0.08 + (i % 3) * 0.05 : 0.05 + (i % 3) * 0.035;
-      out.push([Math.cos(a) * r, hang ? -i * 0.045 : 0.05 + (i % 4) * 0.035, Math.sin(a) * r, 0.05 + (i % 2) * 0.02]);
+// Real-looking foliage: leaf-shaped cards (alpha-tested texture) in one instanced mesh per plant.
+let LEAF_TEX = null;
+function leafTex() {
+  if (!LEAF_TEX) LEAF_TEX = leafTexture();
+  return LEAF_TEX;
+}
+const LEAF_GEO = (() => {
+  const g = new THREE.PlaneGeometry(1, 1);
+  g.translate(0, 0.5, 0);
+  return g;
+})();
+
+export function Leafy({ p, s = 1, hang = false, seed = 1 }) {
+  const mesh = useMemo(() => {
+    const r = rng(Math.round(seed * 97 + p[0] * 31 + p[2] * 17 + (hang ? 5 : 0)));
+    const n = hang ? 46 : 30;
+    const mat = new THREE.MeshStandardMaterial({
+      map: leafTex(),
+      alphaTest: 0.5,
+      side: THREE.DoubleSide,
+      roughness: 0.6,
+      color: '#ffffff',
+    });
+    const im = new THREE.InstancedMesh(LEAF_GEO, mat, n);
+    const o = new THREE.Object3D();
+    const col = new THREE.Color();
+    for (let i = 0; i < n; i++) {
+      if (hang) {
+        // trailing vines: leaves hang along a few strands
+        const strand = i % 4;
+        const a = strand * 1.6 + r() * 0.4;
+        const t = Math.floor(i / 4) / (n / 4);
+        o.position.set(Math.cos(a) * (0.08 + t * 0.06), -t * 0.75, Math.sin(a) * (0.08 + t * 0.06));
+        o.rotation.set(Math.PI * (0.55 + r() * 0.3), r() * Math.PI * 2, (r() - 0.5) * 0.8);
+      } else {
+        const a = r() * Math.PI * 2;
+        const rad = 0.02 + r() * 0.1;
+        o.position.set(Math.cos(a) * rad, 0.1 + r() * 0.12, Math.sin(a) * rad);
+        o.rotation.set((r() - 0.5) * 1.6, a, (r() - 0.5) * 1.2);
+      }
+      const sz = (hang ? 0.07 : 0.09) + r() * 0.05;
+      o.scale.set(sz * 0.6, sz, sz);
+      o.updateMatrix();
+      im.setMatrixAt(i, o.matrix);
+      col.setHSL(0.27 + r() * 0.06, 0.45 + r() * 0.2, 0.22 + r() * 0.12);
+      im.setColorAt(i, col);
     }
-    return out;
-  }, [hang]);
+    im.userData.noShadow = true;
+    return im;
+  }, [hang, seed, p]);
   return (
     <group position={p} scale={s}>
       {!hang && (
         <mesh position={[0, 0.05, 0]}>
-          <cylinderGeometry args={[0.06, 0.05, 0.1, 12]} />
-          <meshStandardMaterial color="#1b1b1b" roughness={0.6} />
+          <cylinderGeometry args={[0.06, 0.05, 0.1, 16]} />
+          <meshStandardMaterial color="#191b1e" roughness={0.5} metalness={0.2} />
         </mesh>
       )}
-      {leaves.map(([x, y, z, r], i) => (
-        <mesh key={i} position={[x, y + 0.08, z]} scale={[1, 0.7, 1]}>
-          <icosahedronGeometry args={[r, 0]} />
-          <meshStandardMaterial color={i % 2 ? '#3f8a3a' : '#5aa548'} roughness={0.7} flatShading />
-        </mesh>
-      ))}
+      <primitive object={mesh} />
     </group>
   );
 }
@@ -121,7 +155,7 @@ function Towels({ p, n = 3 }) {
 
 export default function Bar() {
   const slats = useSet('dark_wooden_planks', 0.15, 1);
-  const marble = useSet('marble_01', 1.5, 0.6);
+  const walnut = useSet('dark_wooden_planks', 1.2, 0.2);
   const m = useMats();
   const W = BAR.x1 - BAR.x0;
   const cx = (BAR.x0 + BAR.x1) / 2;
@@ -147,7 +181,7 @@ export default function Bar() {
       ))}
       <mesh position={[cx, top + 0.03, (BAR.z0 + BAR.z1) / 2 + 0.02]}>
         <boxGeometry args={[W + 0.1, 0.06, BAR.z1 - BAR.z0 + 0.1]} />
-        <meshStandardMaterial {...marble} color="#f4f1ec" roughness={0.25} envMapIntensity={1.1} />
+        <meshPhysicalMaterial color="#191b1e" roughness={0.18} metalness={0.2} clearcoat={0.8} clearcoatRoughness={0.1} envMapIntensity={1.2} />
       </mesh>
       <mesh position={[cx, top - 0.01, BAR.z1 + 0.05]}>
         <boxGeometry args={[W, 0.015, 0.015]} />
@@ -186,7 +220,7 @@ export default function Bar() {
         <group key={y}>
           <mesh position={[scx, y, -1.17]}>
             <boxGeometry args={[sw, 0.04, 0.22]} />
-            <meshStandardMaterial color="#c98f5a" roughness={0.75} />
+            <meshStandardMaterial {...walnut} color="#5a4030" roughness={0.55} />
           </mesh>
           <mesh position={[scx, y - 0.026, -1.075]}>
             <boxGeometry args={[sw - 0.04, 0.012, 0.012]} />
@@ -201,6 +235,13 @@ export default function Bar() {
             return <Bottle key={i} m={m} i={i + si} p={p} h={0.2} />;
           })}
         </group>
+      ))}
+      {/* black shelving frame */}
+      {[SHELVES.x0, (SHELVES.x0 + SHELVES.x1) / 2, SHELVES.x1].map((x) => (
+        <mesh key={x} position={[x, 2.3, -1.17]}>
+          <boxGeometry args={[0.035, 1.4, 0.24]} />
+          <meshStandardMaterial color="#090a0c" roughness={0.35} metalness={0.6} />
+        </mesh>
       ))}
       {/* plants on top of the fridge and trailing from the ceiling */}
       {[FRIDGE.x0 + 0.18, FRIDGE.x0 + 0.5, FRIDGE.x0 + 0.82].map((x) => (

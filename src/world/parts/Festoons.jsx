@@ -73,7 +73,7 @@ export default function Festoons() {
     return { wires, bulbs, lightSpots };
   }, []);
 
-  const lit = Q.fullLights ? [2, 3, 4, 7] : [2, 7];
+  const lit = Q.fullLights ? [2, 7] : [2];
 
   return (
     <group>

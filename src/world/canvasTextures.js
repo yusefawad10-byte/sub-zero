@@ -63,7 +63,7 @@ function spaced(ctx, text, x, y, spacing) {
   ctx.textAlign = align;
 }
 
-export function logoTexture({ ring = C.cream, text = C.cream, fill = null } = {}) {
+export function logoTexture({ ring = '#D4D4D4', text = '#D4D4D4', fill = null, ringWidth = 12 } = {}) {
   const [c, x] = make(512, 512);
   if (fill) {
     x.fillStyle = fill;
@@ -72,15 +72,15 @@ export function logoTexture({ ring = C.cream, text = C.cream, fill = null } = {}
     x.fill();
   }
   x.strokeStyle = ring;
-  x.lineWidth = 22;
+  x.lineWidth = ringWidth;
   x.beginPath();
-  x.arc(256, 256, 220, 0, Math.PI * 2);
+  x.arc(256, 256, 226, 0, Math.PI * 2);
   x.stroke();
   x.fillStyle = text;
   x.textAlign = 'center';
   x.textBaseline = 'middle';
-  x.font = `200px ${HEAD}`;
-  x.fillText('SZ', 256, 270);
+  x.font = `190px ${HEAD}`;
+  x.fillText('SZ', 256, 268);
   return toTex(c);
 }
 
@@ -102,16 +102,16 @@ export function sideLetteringTexture() {
   const [c, x] = make(1024, 900);
   x.textAlign = 'left';
   x.textBaseline = 'alphabetic';
-  x.strokeStyle = '#7fc6ee';
+  x.strokeStyle = '#378FC5';
   x.lineWidth = 9;
   x.lineJoin = 'round';
   x.beginPath();
   for (let i = 0; i <= 8; i++) x.lineTo(70 + i * 26, 150 + (i % 2 ? -14 : 14));
   x.stroke();
-  x.fillStyle = '#ece7e0';
+  x.fillStyle = '#D4D4D4';
   x.font = `330px ${HEAD}`;
   x.fillText('SUB', 50, 470);
-  x.fillStyle = '#5bb2e6';
+  x.fillStyle = '#378FC5';
   fit(x, 'ZERO', (s) => `${s}px ${HEAD}`, 330, 940);
   x.fillText('ZERO', 50, 800);
   return toTex(c);
@@ -243,6 +243,65 @@ export function frondTexture() {
   x.lineTo(64, 512);
   x.stroke();
   return toTex(c);
+}
+
+// A single leaf (pointed oval with a midrib) for foliage cards; alpha-tested.
+export function leafTexture() {
+  const [c, x] = make(128, 256);
+  x.clearRect(0, 0, 128, 256);
+  const g = x.createLinearGradient(0, 0, 128, 0);
+  g.addColorStop(0, '#2f5a22');
+  g.addColorStop(0.5, '#6aa84a');
+  g.addColorStop(1, '#2f5a22');
+  x.fillStyle = g;
+  x.beginPath();
+  x.moveTo(64, 250);
+  x.bezierCurveTo(6, 200, 4, 70, 64, 4);
+  x.bezierCurveTo(124, 70, 122, 200, 64, 250);
+  x.fill();
+  x.strokeStyle = 'rgba(200,230,150,0.55)';
+  x.lineWidth = 3;
+  x.beginPath();
+  x.moveTo(64, 250);
+  x.lineTo(64, 12);
+  x.stroke();
+  x.lineWidth = 1.5;
+  for (let i = 0; i < 7; i++) {
+    const y = 210 - i * 26;
+    x.beginPath();
+    x.moveTo(64, y);
+    x.quadraticCurveTo(40, y - 14, 22, y - 30);
+    x.moveTo(64, y);
+    x.quadraticCurveTo(88, y - 14, 106, y - 30);
+    x.stroke();
+  }
+  return toTex(c);
+}
+
+// Condensation: a normal map of small water droplets for the cold tank walls.
+export function dropletNormalTexture() {
+  const N = 256;
+  const [c, x] = make(N, N);
+  x.fillStyle = 'rgb(128,128,255)';
+  x.fillRect(0, 0, N, N);
+  const r = rng(31);
+  for (let i = 0; i < 520; i++) {
+    const cx = r() * N;
+    const cy = r() * N;
+    const rad = 1 + r() * r() * 5;
+    const g = x.createRadialGradient(cx - rad * 0.3, cy - rad * 0.3, 0, cx, cy, rad);
+    g.addColorStop(0, 'rgb(90,90,240)');
+    g.addColorStop(0.6, 'rgb(150,150,250)');
+    g.addColorStop(1, 'rgba(128,128,255,0)');
+    x.fillStyle = g;
+    x.beginPath();
+    x.ellipse(cx, cy, rad * 0.8, rad, 0, 0, Math.PI * 2);
+    x.fill();
+  }
+  const t = toTex(c, false);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(2, 2);
+  return t;
 }
 
 // Tileable ripple normal map for the tub water.
