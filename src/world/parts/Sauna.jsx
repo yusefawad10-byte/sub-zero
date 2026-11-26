@@ -60,12 +60,12 @@ export default function Sauna() {
   useFrame((s) => {
     const t = s.clock.elapsedTime;
     const f = 0.88 + 0.08 * Math.sin(t * 7.3) + 0.05 * Math.sin(t * 13.1 + 1) + 0.03 * Math.sin(t * 23.7);
-    if (light.current) light.current.intensity = 5 * f;
+    if (light.current) light.current.intensity = 9 * f;
     if (ember.current) ember.current.emissiveIntensity = 2.4 * f;
   });
 
   const H = SAUNA.top - F;
-  const wall = <meshStandardMaterial {...cedar} color="#e6a86c" roughness={0.85} />;
+  const wall = <meshStandardMaterial {...cedar} color="#f2bb7e" roughness={0.8} emissive="#ff8a3a" emissiveIntensity={0.08} />;
   const leftW = SAUNA.door[0] - SAUNA.x0;
   const rightW = SAUNA.x1 - SAUNA.door[1];
   const doorW = SAUNA.door[1] - SAUNA.door[0];

@@ -12,10 +12,15 @@ export default function Awning() {
     () =>
       new THREE.MeshStandardMaterial({
         color: '#fff',
-        emissive: '#ffc98a',
-        emissiveIntensity: 4,
+        emissive: '#ffb45e',
+        emissiveIntensity: 3,
         toneMapped: false,
       }),
+    []
+  );
+
+  const bulb = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffc070', emissiveIntensity: 7, toneMapped: false }),
     []
   );
 
@@ -34,7 +39,7 @@ export default function Awning() {
         {/* cedar underside */}
         <mesh position={[0, -0.002, D / 2]} rotation={[Math.PI / 2, 0, 0]}>
           <planeGeometry args={[W - 0.08, D - 0.06]} />
-          <meshStandardMaterial {...cedar} color="#d49a68" roughness={0.85} />
+          <meshStandardMaterial {...cedar} color="#5a3d29" roughness={0.7} />
         </mesh>
         {/* warm LED strip around the edge */}
         <mesh material={warm} position={[0, -0.02, D - 0.06]}>
@@ -46,13 +51,19 @@ export default function Awning() {
           </mesh>
         ))}
         {/* downlights */}
-        {[-2.4, -0.8, 0.8, 2.4].map((x) =>
-          [0.9, 1.9].map((z) => (
-            <mesh key={`${x}${z}`} material={warm} position={[x, -0.006, z]} rotation={[Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.055, 16]} />
+        {[-3.0, -2.0, -1.0, 0, 1.0, 2.0, 3.0].map((x) =>
+          [0.55, 1.35, 2.15].map((z) => (
+            <mesh key={`${x}${z}`} material={bulb} position={[x, -0.04, z]}>
+              <sphereGeometry args={[0.045, 12, 8]} />
             </mesh>
           ))
         )}
+        {/* warm bulbs strung along the front edge */}
+        {Array.from({ length: 17 }, (_, i) => (
+          <mesh key={`e${i}`} material={bulb} position={[-W / 2 + 0.2 + i * ((W - 0.4) / 16), -0.09 - 0.05 * Math.sin((i / 16) * Math.PI * 4) ** 2, D - 0.02]}>
+            <sphereGeometry args={[0.04, 10, 8]} />
+          </mesh>
+        ))}
       </group>
       {/* gas struts */}
       {[-1, 1].map((s) => (
@@ -69,8 +80,8 @@ export default function Awning() {
         <pointLight
           key={x}
           position={[x, lightY, (DECK.z0 + AWNING_EDGE.z) / 2 + 0.2]}
-          color="#ffbf80"
-          intensity={Q.fullLights ? 5 : 7}
+          color="#ffb468"
+          intensity={Q.fullLights ? 6.5 : 9}
           distance={7}
           decay={1.6}
         />

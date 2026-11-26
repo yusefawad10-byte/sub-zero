@@ -107,7 +107,7 @@ export default function Truck() {
       </mesh>
       <mesh position={[0, BOX.ceil - 0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, 2.6]} />
-        <meshStandardMaterial {...cedar} color="#e0a472" roughness={0.85} envMapIntensity={0.4} />
+        <meshStandardMaterial {...cedar} color="#5a3d29" roughness={0.7} envMapIntensity={0.4} />
       </mesh>
       {[0.9, 2.0, 3.1].map((x) =>
         [-0.4, 0.6].map((z) => (

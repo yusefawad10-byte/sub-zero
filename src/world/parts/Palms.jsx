@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { frondTexture, rng } from '../canvasTextures';
+import { Q } from '../../quality';
 import { PALMS } from '../layout';
+import { Spot } from './bits';
 
 // A frond: a plane bent outward and drooping down.
 function frondGeometry(len = 3, width = 0.9, droop = 1.5) {
@@ -92,7 +94,7 @@ export default function Palms() {
         roughness: 0.75,
         color: '#b9d49a',
       }),
-      barkMat: new THREE.MeshStandardMaterial({ color: '#5a4636', roughness: 0.95 }),
+      barkMat: new THREE.MeshStandardMaterial({ color: '#7a5b40', roughness: 0.9 }),
       dateMat: new THREE.MeshStandardMaterial({ color: '#b5651d', roughness: 0.6 }),
       frondGeo: frondGeometry(),
     };
@@ -101,6 +103,27 @@ export default function Palms() {
     <group>
       {PALMS.map((p, i) => (
         <Palm key={i} {...p} seed={i * 13 + 5} {...mats} />
+      ))}
+      {/* warm uplight at the foot of each palm, like the render */}
+      {PALMS.map((p, i) => (
+        <group key={`u${i}`}>
+          <mesh position={[p.x + 0.45, 0.06, p.z + 0.45]}>
+            <cylinderGeometry args={[0.08, 0.1, 0.12, 12]} />
+            <meshStandardMaterial color="#111" emissive="#ffb050" emissiveIntensity={2.5} toneMapped={false} />
+          </mesh>
+          {(Q.fullLights || i < 2) && (
+            <Spot
+              position={[p.x + 0.45, 0.15, p.z + 0.45]}
+              target={[p.x + p.lean[0], p.h * 0.75, p.z + p.lean[1]]}
+              color="#ffa94d"
+              intensity={Q.fullLights ? 30 : 22}
+              distance={p.h + 2}
+              angle={0.32}
+              penumbra={0.6}
+              decay={1.3}
+            />
+          )}
+        </group>
       ))}
     </group>
   );

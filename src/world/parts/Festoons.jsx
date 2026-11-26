@@ -16,6 +16,12 @@ const SPANS = [
   [top(POLES[3]), top(POLES[1]), 0.6],
   [top(POLES[2]), palmTop(PALMS[0]), 0.7],
   [top(POLES[3]), palmTop(PALMS[1]), 0.7],
+  // strings from the palms right over the truck, as in the render
+  [palmTop(PALMS[0]), palmTop(PALMS[1]), 1.6],
+  [palmTop(PALMS[0]), awningL, 0.8],
+  [palmTop(PALMS[1]), awningR, 0.8],
+  [palmTop(PALMS[2]), top(POLES[2]), 0.7],
+  [palmTop(PALMS[3]), top(POLES[3]), 0.7],
 ];
 
 function sag(a, b, s, n) {
@@ -44,7 +50,7 @@ export default function Festoons() {
       const curve = new THREE.CatmullRomCurve3(pts);
       wires.push(new THREE.Mesh(new THREE.TubeGeometry(curve, 40, 0.007, 4, false), wireMat));
       const len = curve.getLength();
-      const n = Math.max(3, Math.floor(len / 0.55));
+      const n = Math.max(3, Math.floor(len / 0.42));
       for (let i = 1; i < n; i++) {
         const p = curve.getPoint(i / n);
         bulbPts.push(p.x, p.y - 0.06, p.z);
@@ -53,8 +59,8 @@ export default function Festoons() {
     }
     const count = bulbPts.length / 3;
     const bulbs = new THREE.InstancedMesh(
-      new THREE.SphereGeometry(0.045, 10, 8),
-      new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffcf8a', emissiveIntensity: 5, toneMapped: false }),
+      new THREE.SphereGeometry(0.055, 10, 8),
+      new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffbd6a', emissiveIntensity: 7, toneMapped: false }),
       count
     );
     const o = new THREE.Object3D();
@@ -67,7 +73,7 @@ export default function Festoons() {
     return { wires, bulbs, lightSpots };
   }, []);
 
-  const lit = Q.fullLights ? [2, 3, 4] : [2];
+  const lit = Q.fullLights ? [2, 3, 4, 7] : [2, 7];
 
   return (
     <group>
@@ -88,7 +94,7 @@ export default function Festoons() {
       ))}
       <primitive object={bulbs} />
       {lit.map((i) => (
-        <pointLight key={i} position={lightSpots[i]} color="#ffb870" intensity={3} distance={9} decay={1.6} />
+        <pointLight key={i} position={lightSpots[i]} color="#ffaa5c" intensity={4} distance={10} decay={1.5} />
       ))}
     </group>
   );

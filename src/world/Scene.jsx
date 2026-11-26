@@ -91,7 +91,7 @@ export default function Scene() {
   return (
     <>
       <Environment />
-      <hemisphereLight args={['#2b3a55', '#0d0b08', 0.35]} />
+      <hemisphereLight args={['#22304a', '#1a1008', 0.3]} />
       <Moonlight />
       <Ground />
       <Truck />

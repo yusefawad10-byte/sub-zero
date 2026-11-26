@@ -70,9 +70,9 @@ function Mist({ count }) {
 
 const frameMat = new THREE.MeshStandardMaterial({ color: '#0d0e0f', metalness: 0.75, roughness: 0.35 });
 const iceMat = new THREE.MeshStandardMaterial({
-  color: '#e6f7ff',
-  emissive: '#8fdcff',
-  emissiveIntensity: 0.9,
+  color: '#bfe9ff',
+  emissive: '#4fbfff',
+  emissiveIntensity: 0.75,
   roughness: 0.25,
   flatShading: true,
 });

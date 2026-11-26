@@ -83,7 +83,7 @@ export default function DjBooth() {
     cones.current.forEach((c) => c && c.scale.set(1, 1, pump));
     if (subCone.current) subCone.current.scale.set(1 + pulse * 0.05, 1 + pulse * 0.05, 1 + pulse * 0.6);
     UPLIGHTS.forEach((_, i) => {
-      tmp.setHSL((t * 0.04 + i * 0.5) % 1, 0.85, 0.55);
+      tmp.setHSL(0.075 + 0.02 * Math.sin(t * 0.5 + i), 0.95, 0.55);
       const L = ups.current[i];
       if (L) {
         L.color.copy(tmp);

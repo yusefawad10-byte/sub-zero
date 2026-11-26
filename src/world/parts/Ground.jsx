@@ -50,28 +50,28 @@ export default function Ground() {
         {Q.reflections ? (
           <MeshReflectorMaterial
             {...asphalt}
-            color="#6c727a"
-            roughness={1}
-            metalness={0.35}
+            color="#3d4148"
+            roughness={0.45}
+            metalness={0.55}
             normalScale={new THREE.Vector2(0.6, 0.6)}
-            blur={[420, 140]}
+            blur={[220, 70]}
             resolution={1024}
             mixBlur={1}
-            mixStrength={2.4}
+            mixStrength={7}
             mixContrast={1}
             depthScale={0.9}
             minDepthThreshold={0.35}
             maxDepthThreshold={1.3}
-            mirror={0}
+            mirror={0.25}
             envMapIntensity={0.6}
           />
         ) : (
           <meshStandardMaterial
             {...asphalt}
-            color="#5b6068"
-            roughness={0.7}
-            metalness={0.3}
-            envMapIntensity={0.9}
+            color="#40444b"
+            roughness={0.42}
+            metalness={0.45}
+            envMapIntensity={1.3}
           />
         )}
       </mesh>

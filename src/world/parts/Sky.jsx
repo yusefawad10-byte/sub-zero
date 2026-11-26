@@ -16,8 +16,8 @@ const frag = /* glsl */ `
   void main() {
     float h = clamp(vDir.y, -0.2, 1.0);
     vec3 horizon = vec3(0.13, 0.15, 0.2);
-    vec3 glow = vec3(0.32, 0.2, 0.14);
-    vec3 zenith = vec3(0.008, 0.014, 0.03);
+    vec3 glow = vec3(0.42, 0.24, 0.12);
+    vec3 zenith = vec3(0.004, 0.008, 0.02);
     vec3 c = mix(horizon, zenith, pow(smoothstep(0.0, 0.6, h), 0.7));
     c += glow * exp(-max(h, 0.0) * 18.0) * 0.55;
     if (h < 0.0) c = horizon * 0.6;

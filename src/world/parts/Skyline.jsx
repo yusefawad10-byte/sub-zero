@@ -13,12 +13,12 @@ export default function Skyline() {
     for (let i = 0; i < Q.buildings; i++) {
       // most towers behind the truck, some off to the sides
       const a = -Math.PI / 2 + (r() - 0.5) * Math.PI * 1.5;
-      const d = 150 + r() * 90;
+      const d = 210 + r() * 110;
       const x = Math.cos(a) * d;
       const z = Math.sin(a) * d;
       const w = 10 + r() * 16;
       const dpt = 10 + r() * 16;
-      const h = 14 + Math.pow(r(), 1.8) * 70;
+      const h = 12 + Math.pow(r(), 2) * 55;
       const tex = winTex.clone();
       tex.needsUpdate = true;
       tex.repeat.set(Math.max(1, w / 18), Math.max(1, h / 18));
@@ -29,7 +29,7 @@ export default function Skyline() {
         metalness: 0.4,
         emissive: '#ffffff',
         emissiveMap: tex,
-        emissiveIntensity: 0.9,
+        emissiveIntensity: 1.35,
         fog: false,
       });
       towers.push({ x, z, w, d: dpt, h, mat, ry: r() * 0.6 });
@@ -54,16 +54,16 @@ export default function Skyline() {
       color: '#0d121a',
       metalness: 0.7,
       roughness: 0.3,
-      emissive: '#cfe6ff',
+      emissive: '#e8f2ff',
       emissiveMap: bt,
-      emissiveIntensity: 0.9,
+      emissiveIntensity: 1.8,
       fog: false,
     });
     for (const [rad, h] of steps) {
       tiers.push({ y: y + h / 2, rad, h });
       y += h;
     }
-    const burj = { x: 70, z: -270, tiers, spireY: y, mat: bMat };
+    const burj = { x: 60, z: -250, tiers, spireY: y, mat: bMat };
     return { towers, burj };
   }, []);
 

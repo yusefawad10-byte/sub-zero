@@ -290,7 +290,7 @@ export function windowsTexture(density = 1, seed = 11) {
   x.fillRect(0, 0, N, N);
   for (let j = 0; j < cells; j++) {
     for (let i = 0; i < cells; i++) {
-      if (r() > 0.42 * density) continue;
+      if (r() > 0.55 * density) continue;
       const warm = r() > 0.3;
       const b = 0.45 + r() * 0.55;
       x.fillStyle = warm

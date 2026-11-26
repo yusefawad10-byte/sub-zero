@@ -2,7 +2,7 @@ import { DECK, STEPS } from '../layout';
 import { useSet } from '../textures';
 import { C } from '../canvasTextures';
 
-const LED = <meshStandardMaterial color={C.ice} emissive={C.ice} emissiveIntensity={3.5} toneMapped={false} />;
+const LED = <meshStandardMaterial color="#ffb35c" emissive="#ffa448" emissiveIntensity={3.2} toneMapped={false} />;
 
 export default function Deck() {
   const wood = useSet('dark_wooden_planks', 4, 1.6);
@@ -20,7 +20,7 @@ export default function Deck() {
       </mesh>
       <mesh position={[0, 0.602, DECK.z0 + D / 2]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial {...wood} color="#9c7a5c" roughness={0.7} />
+        <meshStandardMaterial {...wood} color="#5b4334" roughness={0.45} />
       </mesh>
       {/* legs */}
       {[-3.4, -1.2, 1.2, 3.4].map((x) => (

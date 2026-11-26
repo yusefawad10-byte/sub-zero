@@ -21,8 +21,8 @@ export default function Cafe() {
     () => ({
       steel: new THREE.MeshStandardMaterial({ color: '#3a3d40', metalness: 0.85, roughness: 0.35 }),
       black: new THREE.MeshStandardMaterial({ color: '#0e0f10', roughness: 0.55, metalness: 0.2 }),
-      led: new THREE.MeshStandardMaterial({ color: C.ice, emissive: C.ice, emissiveIntensity: 3.5, toneMapped: false }),
-      warm: new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffc98a', emissiveIntensity: 4, toneMapped: false }),
+      led: new THREE.MeshStandardMaterial({ color: '#ffb35c', emissive: '#ffa448', emissiveIntensity: 3.2, toneMapped: false }),
+      warm: new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#ffc070', emissiveIntensity: 6, toneMapped: false }),
     }),
     []
   );
@@ -55,7 +55,7 @@ export default function Cafe() {
       </mesh>
       <mesh position={[cx, 0.602, cz]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[W, D]} />
-        <meshStandardMaterial {...wood} color="#9c7a5c" roughness={0.7} />
+        <meshStandardMaterial {...wood} color="#5b4334" roughness={0.45} />
       </mesh>
       {/* blue LED along the outside edges */}
       <mesh material={m.led} position={[cx, 0.585, CAFE.z1 + 0.005]}>
@@ -93,7 +93,7 @@ export default function Cafe() {
         </mesh>
         <mesh position={[0, -0.002, 0]} rotation={[Math.PI / 2, 0, 0]}>
           <planeGeometry args={[CAFE.x1 + 0.02 - 3.7, D + 0.22]} />
-          <meshStandardMaterial {...cedar} color="#d49a68" roughness={0.85} />
+          <meshStandardMaterial {...cedar} color="#5a3d29" roughness={0.7} />
         </mesh>
         <mesh material={m.warm} position={[0, -0.015, (D + 0.3) / 2 - 0.06]}>
           <boxGeometry args={[CAFE.x1 - 3.8, 0.02, 0.03]} />
@@ -101,7 +101,7 @@ export default function Cafe() {
         {[-1.2, 0, 1.2].map((x) =>
           [-0.9, 0.5, 1.6].map((z) => (
             <mesh key={`${x}${z}`} material={m.warm} position={[x, -0.006, z]} rotation={[Math.PI / 2, 0, 0]}>
-              <circleGeometry args={[0.05, 16]} />
+              <sphereGeometry args={[0.045, 12, 8]} />
             </mesh>
           ))
         )}

@@ -4,7 +4,7 @@ import { Q } from '../quality';
 
 export default function Effects() {
   const common = [
-    <Bloom key="bloom" mipmapBlur intensity={0.85} luminanceThreshold={0.95} luminanceSmoothing={0.2} radius={0.75} />,
+    <Bloom key="bloom" mipmapBlur intensity={1.15} luminanceThreshold={0.85} luminanceSmoothing={0.25} radius={0.8} />,
     <ToneMapping key="tone" mode={ToneMappingMode.ACES_FILMIC} />,
   ];
   const tail = [
