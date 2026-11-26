@@ -156,14 +156,14 @@ export default function Bar() {
 
       {/* drinks on the counter */}
       {[0, 1, 2].map((i) => (
-        <Shake key={i} i={i} m={m} p={[1.0 + i * 0.17, top + 0.06, 0.15]} />
+        <Shake key={i} i={i} m={m} p={[BAR.x0 + 0.3 + i * 0.17, top + 0.06, BAR.z0 + 0.35]} />
       ))}
-      <Coconut m={m} p={[1.7, top + 0.06, 0.12]} />
-      <Coconut m={m} p={[1.92, top + 0.06, 0.18]} />
+      <Coconut m={m} p={[BAR.x0 + 1.0, top + 0.06, BAR.z0 + 0.32]} />
+      <Coconut m={m} p={[BAR.x0 + 1.22, top + 0.06, BAR.z0 + 0.38]} />
       {[0, 1, 2].map((i) => (
-        <Bottle key={i} i={i} m={m} p={[2.25 + i * 0.1, top + 0.06, 0.15]} />
+        <Bottle key={i} i={i} m={m} p={[BAR.x0 + 1.55 + i * 0.1, top + 0.06, BAR.z0 + 0.35]} />
       ))}
-      <group position={[3.15, top + 0.06, -0.05]}>
+      <group position={[BAR.x1 - 0.3, top + 0.06, BAR.z0 + 0.15]}>
         <mesh position={[0, 0.06, 0]}>
           <boxGeometry args={[0.15, 0.12, 0.15]} />
           <meshStandardMaterial color="#111" roughness={0.4} metalness={0.3} />
@@ -203,10 +203,10 @@ export default function Bar() {
         </group>
       ))}
       {/* plants on top of the fridge and trailing from the ceiling */}
-      {[2.7, 3.0, 3.3].map((x) => (
+      {[FRIDGE.x0 + 0.18, FRIDGE.x0 + 0.5, FRIDGE.x0 + 0.82].map((x) => (
         <Leafy key={x} p={[x, 2.42, -0.97]} s={1.2} />
       ))}
-      {[[2.9, 3.35, 1.15], [0.75, 3.35, 1.1], [1.6, 3.35, -0.9]].map((p, i) => (
+      {[[4.1, 3.35, 1.95], [7.15, 3.35, 1.3], [5.1, 3.35, -0.95], [0.75, 3.35, 1.1], [2.9, 3.35, 1.0]].map((p, i) => (
         <Leafy key={i} p={p} s={1.4} hang />
       ))}
 
@@ -247,8 +247,7 @@ export default function Bar() {
         </mesh>
       </group>
 
-      <pointLight position={[1.9, 3.05, 0.4]} color="#ffcf9a" intensity={4.5} distance={4.5} decay={1.5} />
-      {Q.fullLights && <pointLight position={[3.0, 1.5, 0.1]} color="#cfefff" intensity={1.6} distance={2.4} decay={1.5} />}
+      {Q.fullLights && <pointLight position={[(FRIDGE.x0 + FRIDGE.x1) / 2, 1.5, 0.1]} color="#cfefff" intensity={1.6} distance={2.4} decay={1.5} />}
     </group>
   );
 }

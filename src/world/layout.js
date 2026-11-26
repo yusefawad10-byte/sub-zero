@@ -23,19 +23,24 @@ export const AWNING_EDGE = {
 };
 
 export const SAUNA = { x0: -1.55, x1: 0.35, z0: -1.3, z1: 1.15, door: [-0.95, -0.2], top: 3.0 };
-export const BAR = { x0: 0.7, x1: 3.45, z0: -0.25, z1: 0.3, top: 1.62 };
-export const SHELVES = { x0: 0.65, x1: 2.45 };
-export const FRIDGE = { x0: 2.52, x1: 3.52, z0: -1.27, z1: -0.67 };
+// Café platform: slides out from beneath the back of the truck, at truck floor height.
+export const CAFE = { x0: 3.6, x1: 7.4, z0: -1.3, z1: 2.6, y: 0.6, roof: 3.4 };
+export const CAFE_STEPS = { x0: 4.9, x1: 6.5, rows: [[2.6, 2.95, 0.4], [2.95, 3.3, 0.2]] };
+export const BAR = { x0: 4.0, x1: 7.0, z0: -0.05, z1: 0.5, top: 1.62 };
+export const SHELVES = { x0: 3.95, x1: 5.9 };
+export const FRIDGE = { x0: 6.0, x1: 7.0, z0: -1.27, z1: -0.67 };
 export const TUB = { w: 1.0, l: 0.86, h: 0.86 };
 export const TUBS = [
   { x: -3.0, z: 2.05 },
   { x: -1.97, z: 2.05 },
 ];
-// stretch table runs along x in front of the bar
-export const STRETCH = { x: 1.75, z: 2.45, w: 1.9, l: 0.7, h: 0.7 };
+// stretch table now lives inside the truck, along the back wall
+export const STRETCH = { x: 2.05, z: -0.88, w: 1.9, l: 0.7, h: 0.7 };
 export const PLANTS = [
   { x: -1.2, y: 0.6, z: 1.55, s: 1.25 },
   { x: 3.3, y: 0.6, z: 3.6, s: 0.85 },
+  { x: 7.1, y: 0.6, z: 2.3, s: 0.8 },
+  { x: 3.3, y: 0.6, z: -0.95, s: 0.9 },
 ];
 
 export const DJ = { x: -5.4, z: 6.2 };
@@ -76,17 +81,17 @@ export const JUMPS = {
   dj: { pos: [-5.0, 10.2], look: [-5.4, 1.2, 6.2] },
   tubs: { pos: [-1.0, 3.35], look: [-2.6, 1.0, 2.0] },
   sauna: { pos: [-0.57, 2.1], look: [-0.57, 1.5, -1.0] },
-  bar: { pos: [1.6, 1.0], look: [2.0, 1.5, -0.9] },
+  bar: { pos: [5.0, 2.35], look: [5.5, 2.0, -1.2] },
   outside: { pos: [SPAWN.x, SPAWN.z], look: SPAWN.look },
 };
 
 export const HOTSPOTS = [
   { id: 'dj', x: DJ.x, z: DJ.z + 0.8, r: 4.0 },
   { id: 'tubs', x: -2.45, z: 2.3, r: 2.0 },
-  { id: 'stretch', x: STRETCH.x, z: STRETCH.z, r: 1.3 },
-  { id: 'sauna', x: -0.6, z: 0.2, r: 1.5 },
-  { id: 'bar', x: 2.0, z: 0.8, r: 1.5 },
-  { id: 'middle', x: 0.5, z: 1.35, r: 0.8 },
+  { id: 'stretch', x: STRETCH.x, z: STRETCH.z + 0.2, r: 1.2 },
+  { id: 'sauna', x: -0.6, z: 0.5, r: 1.9 },
+  { id: 'bar', x: 5.5, z: 1.2, r: 1.9 },
+  { id: 'middle', x: 1.2, z: 0.75, r: 0.75 },
 ];
 
 export const BOUNDS = { x0: -26, x1: 26, z0: -16, z1: 24 };
@@ -109,8 +114,10 @@ export const COLLIDERS = [
   c(SAUNA.x0, SAUNA.x1, -1.3, -0.5, 0.6, 1.3), // benches
   c(-0.06, 0.3, 0.55, 0.93, 0.6, 1.5), // heater
   c(-0.27, -0.02, 1.2, 1.98, 0.6, 3), // open glass door
-  // bar block (counter + staff area + fridge)
-  c(0.65, 3.6, -1.3, 0.36, 0.6, 3),
+  // café: back wall, bar block (counter + staff area + fridge), canopy posts
+  c(3.7, CAFE.x1 + 0.05, -1.45, -1.28),
+  c(BAR.x0 - 0.05, CAFE.x1 + 0.05, -1.3, BAR.z1 + 0.06, 0.6, 3),
+  around(CAFE.x1 - 0.08, CAFE.z1 - 0.08, 0.09),
   ...PLANTS.map((p) => around(p.x, p.z, 0.22, 0.6, 2)),
   // deck furniture
   ...TUBS.map((t) => c(t.x - TUB.w / 2, t.x + TUB.w / 2, t.z - TUB.l / 2, t.z + TUB.l / 2, 0.6, 1.6)),
@@ -130,8 +137,12 @@ export const COLLIDERS = [
 // Height of whatever you are standing on at (x, z).
 export function floorAt(x, z) {
   if (x >= DECK.x0 && x <= DECK.x1 && z >= BOX.z0 && z <= DECK.z1) return 0.6;
+  if (x > CAFE.x0 && x <= CAFE.x1 && z >= CAFE.z0 && z <= CAFE.z1) return CAFE.y;
   if (x >= STEPS.x0 && x <= STEPS.x1) {
     for (const [z0, z1, y] of STEPS.rows) if (z > z0 && z <= z1) return y;
+  }
+  if (x >= CAFE_STEPS.x0 && x <= CAFE_STEPS.x1) {
+    for (const [z0, z1, y] of CAFE_STEPS.rows) if (z > z0 && z <= z1) return y;
   }
   return 0;
 }

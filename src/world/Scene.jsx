@@ -5,6 +5,7 @@ import { Q } from '../quality';
 import AFrame from './parts/AFrame';
 import Awning from './parts/Awning';
 import Bar from './parts/Bar';
+import Cafe from './parts/Cafe';
 import Chalkboard from './parts/Chalkboard';
 import Deck from './parts/Deck';
 import DjBooth from './parts/DjBooth';
@@ -98,6 +99,7 @@ export default function Scene() {
       <Awning />
       <IceTubs />
       <Sauna />
+      <Cafe />
       <Bar />
       <Chalkboard />
       <MidTruck />
