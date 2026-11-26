@@ -193,7 +193,8 @@ select:focus-visible {
   display: grid;
   place-items: end center;
   padding-bottom: 7vh;
-  background: radial-gradient(ellipse at 50% 30%, rgba(31, 58, 52, 0.55), #04070b 70%);
+  background: linear-gradient(0deg, rgba(4, 7, 11, 0.95), rgba(4, 7, 11, 0.55)),
+    url('/static/img/truck.jpg') center / cover no-repeat, #04070b;
   transition: opacity 1.2s ease, visibility 1.2s;
   pointer-events: none;
 }
@@ -465,17 +466,25 @@ select:focus-visible {
   overflow: hidden;
 }
 .hero-static {
-  background: linear-gradient(180deg, #05080d, #1c2430);
-  align-items: flex-start;
+  background: #05080d;
+  align-items: flex-end;
 }
-.hero-static-art {
+.hero-static-img {
   position: absolute;
-  left: 0;
-  bottom: 0;
+  inset: 0;
   width: 100%;
-  height: auto;
-  max-height: 62%;
-  opacity: 0.75;
+  height: 100%;
+  object-fit: cover;
+  object-position: 45% 50%;
+}
+.hero-static::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(4, 7, 11, 0.92) 0%, rgba(4, 7, 11, 0.45) 45%, rgba(4, 7, 11, 0.1) 75%);
+}
+.intro-card.static {
+  z-index: 1;
 }
 .intro-card.static {
   position: relative;

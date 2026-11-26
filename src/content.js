@@ -182,5 +182,6 @@ export const footer = {
 };
 
 export const staticHero = {
-  note: 'The 3D walk-through is switched off on this device. Here is the short version.',
+  note: 'The 3D walk-through is switched off on this device. Here is the truck.',
+  alt: 'The Sub Zero truck at night with its side opened up: ice tubs, a cedar sauna, a bar and people after training.',
 };

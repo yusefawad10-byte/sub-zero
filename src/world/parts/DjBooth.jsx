@@ -49,7 +49,7 @@ function Speaker({ x, z, rot, coneRef }) {
 }
 
 export default function DjBooth() {
-  const logo = useMemo(() => logoTexture({ ring: C.ice, text: C.cream }), []);
+  const logo = useMemo(() => logoTexture({ ring: C.cream, text: C.cream }), []);
   const wave = useMemo(() => makeWaveform(), []);
   const jogs = useRef([]);
   const pads = useRef([]);
@@ -112,8 +112,8 @@ export default function DjBooth() {
           <boxGeometry args={[1.9, 0.03, 0.8]} />
           <meshStandardMaterial color="#0d0d0e" roughness={0.95} />
         </mesh>
-        <mesh position={[0, 0.55, 0.381]}>
-          <planeGeometry args={[0.62, 0.62]} />
+        <mesh position={[0, 0.64, 0.381]}>
+          <planeGeometry args={[0.5, 0.5]} />
           <meshStandardMaterial ref={logoMat} map={logo} transparent emissive="#ffffff" emissiveMap={logo} emissiveIntensity={1.8} toneMapped={false} />
         </mesh>
 
@@ -205,13 +205,17 @@ export default function DjBooth() {
 
       {/* subwoofer */}
       <group position={[SUB.x, 0, SUB.z]}>
-        <mesh position={[0, 0.32, 0]}>
-          <boxGeometry args={[0.72, 0.64, 0.66]} />
+        <mesh position={[0, 0.22, 0]}>
+          <boxGeometry args={[0.62, 0.44, 0.5]} />
           <meshStandardMaterial color="#111213" roughness={0.65} />
         </mesh>
-        <group ref={subCone} position={[0, 0.32, 0.331]}>
+        <mesh position={[0.22, 0.05, 0.252]}>
+          <circleGeometry args={[0.012, 8]} />
+          <meshStandardMaterial color="#fff" emissive={C.ice} emissiveIntensity={3} toneMapped={false} />
+        </mesh>
+        <group ref={subCone} position={[0, 0.22, 0.251]}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <coneGeometry args={[0.25, 0.1, 32, 1, true]} />
+            <coneGeometry args={[0.17, 0.07, 32, 1, true]} />
             <meshStandardMaterial color="#26272a" roughness={0.8} side={THREE.DoubleSide} />
           </mesh>
         </group>

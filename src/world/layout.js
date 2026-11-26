@@ -1,5 +1,8 @@
 // Shared layout: sizes, positions, colliders, floor heights, hotspots and jump points.
-// Truck runs along x, open side faces +z, cab at +x. Units are metres.
+// Matches the Sub Zero renders: truck along x, open side faces +z (towards you),
+// cab on the LEFT (-x). Left to right along the open side: closed black panel with
+// the SUB ZERO lettering and the ice tubs in front, the cedar sauna with a glass front,
+// then the bar with shelves, a double drinks fridge and hanging plants. Units are metres.
 
 export const EYE = 1.62;
 export const RADIUS = 0.26;
@@ -7,39 +10,43 @@ export const BODY = 1.7;
 
 export const BOX = { x0: -3.6, x1: 3.6, z0: -1.3, z1: 1.3, floor: 0.6, ceil: 3.4 };
 export const DECK = { x0: -3.6, x1: 3.6, z0: 1.3, z1: 3.9, y: 0.6 };
-export const STEPS = { x0: -0.6, x1: 1.4, rows: [[3.9, 4.25, 0.4], [4.25, 4.6, 0.2]] };
+export const STEPS = { x0: -1.4, x1: 0.4, rows: [[3.9, 4.25, 0.4], [4.25, 4.6, 0.2]] };
+
+// Closed part of the side wall (behind the tubs) that carries the big lettering.
+export const PANEL = { x0: -3.6, x1: -1.55 };
 
 // Awning hinge sits on the top of the open side; it lifts out over the deck.
-export const AWNING = { hingeY: 3.45, hingeZ: 1.3, depth: 2.75, tilt: 0.14, width: 7.35 };
+export const AWNING = { hingeY: 3.45, hingeZ: 1.3, depth: 2.75, tilt: 0.1, width: 7.35 };
 export const AWNING_EDGE = {
   y: AWNING.hingeY + AWNING.depth * Math.sin(AWNING.tilt),
   z: AWNING.hingeZ + AWNING.depth * Math.cos(AWNING.tilt),
 };
 
-export const SAUNA = { x0: -3.6, x1: -1.55, z0: -1.3, z1: 0.5, door: [-3.05, -2.3], top: 2.95 };
-export const BAR = { x0: 1.5, x1: 3.45, z0: -0.15, z1: 0.45, top: 1.62 };
-export const FRIDGE = { x0: 3.05, x1: 3.55, z0: -1.27, z1: -0.67 };
-export const TUB = { w: 0.95, l: 1.7, h: 0.72 };
+export const SAUNA = { x0: -1.55, x1: 0.35, z0: -1.3, z1: 1.15, door: [-0.95, -0.2], top: 3.0 };
+export const BAR = { x0: 0.7, x1: 3.45, z0: -0.25, z1: 0.3, top: 1.62 };
+export const SHELVES = { x0: 0.65, x1: 2.45 };
+export const FRIDGE = { x0: 2.52, x1: 3.52, z0: -1.27, z1: -0.67 };
+export const TUB = { w: 1.0, l: 0.86, h: 0.86 };
 export const TUBS = [
-  { x: -2.8, z: 2.55 },
-  { x: -1.6, z: 2.55 },
+  { x: -3.0, z: 2.05 },
+  { x: -1.97, z: 2.05 },
 ];
-export const STRETCH = { x: 2.65, z: 2.6, w: 0.75, l: 1.9, h: 0.72 };
-export const TOWEL_BENCH = { x0: -1.3, x1: 0.2, z0: -1.3, z1: -0.85 };
+// stretch table runs along x in front of the bar
+export const STRETCH = { x: 1.75, z: 2.45, w: 1.9, l: 0.7, h: 0.7 };
 export const PLANTS = [
-  { x: 0.65, y: 0.6, z: -1.05, s: 1 },
+  { x: -1.2, y: 0.6, z: 1.55, s: 1.25 },
   { x: 3.3, y: 0.6, z: 3.6, s: 0.85 },
 ];
 
-export const DJ = { x: -6.2, z: 5.6 };
+export const DJ = { x: -5.4, z: 6.2 };
 export const SPEAKERS = [
-  { x: -8.1, z: 5.1, rot: 0.35 },
-  { x: -4.3, z: 5.1, rot: -0.35 },
+  { x: -7.2, z: 5.9, rot: 0.3 },
+  { x: -3.55, z: 5.7, rot: -0.3 },
 ];
-export const SUB = { x: -7.45, z: 6.4 };
+export const SUB = { x: -5.4, z: 6.95 };
 export const UPLIGHTS = [
-  { x: -4.1, z: 4.75, target: [-2.6, 3.6, 1.2] },
-  { x: 4.3, z: 4.6, target: [3.0, 3.6, 1.2] },
+  { x: -6.3, z: 6.85, target: [-6.8, 5.5, 2.5] },
+  { x: -4.5, z: 6.85, target: [-3.0, 4.2, 1.4] },
 ];
 
 export const PALMS = [
@@ -51,7 +58,7 @@ export const PALMS = [
   { x: 15.5, z: -4.5, h: 7.6, lean: [-0.3, 0.4] },
 ];
 export const POLES = [
-  { x: -5.6, z: 8.6 },
+  { x: -5.9, z: 9.4 },
   { x: 5.6, z: 8.6 },
   { x: -9.2, z: 6.2 },
   { x: 8.9, z: 7.2 },
@@ -63,23 +70,23 @@ export const LAMPS = [
 ];
 export const AFRAME = { x: 2.9, z: 6.2, rot: -0.35 };
 
-export const SPAWN = { x: 0.4, z: 10, look: [0.2, 1.7, 0] };
+export const SPAWN = { x: -0.5, z: 10, look: [-0.5, 1.7, 0] };
 
 export const JUMPS = {
-  dj: { pos: [-6.2, 9.3], look: [-6.2, 1.2, 5.6] },
-  tubs: { pos: [-0.5, 3.4], look: [-2.3, 0.9, 2.5] },
-  sauna: { pos: [-2.68, 1.25], look: [-2.68, 1.4, -1.0] },
-  bar: { pos: [1.1, 1.15], look: [2.6, 1.6, -0.6] },
+  dj: { pos: [-5.0, 10.2], look: [-5.4, 1.2, 6.2] },
+  tubs: { pos: [-1.0, 3.35], look: [-2.6, 1.0, 2.0] },
+  sauna: { pos: [-0.57, 2.1], look: [-0.57, 1.5, -1.0] },
+  bar: { pos: [1.6, 1.0], look: [2.0, 1.5, -0.9] },
   outside: { pos: [SPAWN.x, SPAWN.z], look: SPAWN.look },
 };
 
 export const HOTSPOTS = [
-  { id: 'dj', x: DJ.x, z: DJ.z + 0.6, r: 4.0 },
-  { id: 'tubs', x: -2.2, z: 2.6, r: 2.0 },
+  { id: 'dj', x: DJ.x, z: DJ.z + 0.8, r: 4.0 },
+  { id: 'tubs', x: -2.45, z: 2.3, r: 2.0 },
   { id: 'stretch', x: STRETCH.x, z: STRETCH.z, r: 1.3 },
-  { id: 'sauna', x: -2.6, z: 0, r: 1.9 },
-  { id: 'bar', x: 2.4, z: 0.95, r: 1.6 },
-  { id: 'middle', x: 0, z: 0.2, r: 1.15 },
+  { id: 'sauna', x: -0.6, z: 0.2, r: 1.5 },
+  { id: 'bar', x: 2.0, z: 0.8, r: 1.5 },
+  { id: 'middle', x: 0.5, z: 1.35, r: 0.8 },
 ];
 
 export const BOUNDS = { x0: -26, x1: 26, z0: -16, z1: 24 };
@@ -90,29 +97,28 @@ const around = (x, z, r, y0 = 0, y1 = 4) => c(x - r, x + r, z - r, z + r, y0, y1
 
 export const COLLIDERS = [
   // truck shell
-  c(-3.75, 3.6, -1.45, -1.27), // back wall
-  c(-3.75, -3.58, -1.45, 1.3), // rear end wall
-  c(3.58, 6.1, -1.42, 1.42), // cab
+  c(-3.6, 3.75, -1.45, -1.27), // back wall
+  c(3.58, 3.75, -1.45, 1.3), // rear end wall
+  c(-6.1, -3.58, -1.42, 1.42), // cab
+  c(PANEL.x0, PANEL.x1 + 0.05, -1.3, 1.36), // closed panel section (storage behind)
   // sauna
-  c(-3.6, SAUNA.door[0], 0.42, 0.56, 0.6, 3.4),
-  c(SAUNA.door[1], -1.5, 0.42, 0.56, 0.6, 3.4),
-  c(-1.63, -1.5, -1.3, 0.56, 0.6, 3.4),
-  c(-3.6, -1.63, -1.3, -0.5, 0.6, 1.3), // benches
-  c(-2.05, -1.63, -0.5, -0.08, 0.6, 1.5), // heater
-  c(-2.36, -2.12, 0.56, 1.32, 0.6, 3), // open glass door
+  c(SAUNA.x0 - 0.05, SAUNA.door[0], 1.08, 1.2, 0.6, 3.4), // glass left of door
+  c(SAUNA.door[1], SAUNA.x1 + 0.07, 1.08, 1.2, 0.6, 3.4), // glass right of door
+  c(SAUNA.x1 - 0.05, SAUNA.x1 + 0.07, -1.3, 1.2, 0.6, 3.4), // right wall
+  c(SAUNA.x0, SAUNA.x1, -1.3, -0.5, 0.6, 1.3), // benches
+  c(-0.06, 0.3, 0.55, 0.93, 0.6, 1.5), // heater
+  c(-0.27, -0.02, 1.2, 1.98, 0.6, 3), // open glass door
   // bar block (counter + staff area + fridge)
-  c(1.45, 3.6, -1.3, 0.5, 0.6, 3),
-  // middle
-  c(TOWEL_BENCH.x0, TOWEL_BENCH.x1, TOWEL_BENCH.z0, TOWEL_BENCH.z1, 0.6, 1.3),
+  c(0.65, 3.6, -1.3, 0.36, 0.6, 3),
   ...PLANTS.map((p) => around(p.x, p.z, 0.22, 0.6, 2)),
   // deck furniture
-  ...TUBS.map((t) => c(t.x - TUB.w / 2, t.x + TUB.w / 2, t.z - TUB.l / 2, t.z + TUB.l / 2, 0.6, 1.4)),
+  ...TUBS.map((t) => c(t.x - TUB.w / 2, t.x + TUB.w / 2, t.z - TUB.l / 2, t.z + TUB.l / 2, 0.6, 1.6)),
   c(STRETCH.x - STRETCH.w / 2, STRETCH.x + STRETCH.w / 2, STRETCH.z - STRETCH.l / 2, STRETCH.z + STRETCH.l / 2, 0.6, 1.4),
   // DJ area
   c(DJ.x - 0.95, DJ.x + 0.95, DJ.z - 0.4, DJ.z + 0.4, 0, 1.2),
   ...SPEAKERS.map((s) => around(s.x, s.z, 0.5)),
-  around(SUB.x, SUB.z, 0.4, 0, 0.7),
-  ...UPLIGHTS.map((u) => around(u.x, u.z, 0.15, 0, 0.4)),
+  around(SUB.x, SUB.z, 0.3, 0, 0.5),
+  ...UPLIGHTS.map((u) => around(u.x, u.z, 0.12, 0, 0.3)),
   // outside
   ...POLES.map((p) => around(p.x, p.z, 0.1)),
   ...PALMS.map((p) => around(p.x, p.z, 0.32, 0, 9)),

@@ -68,6 +68,57 @@ function Mist({ count }) {
   );
 }
 
+const frameMat = new THREE.MeshStandardMaterial({ color: '#0d0e0f', metalness: 0.75, roughness: 0.35 });
+const iceMat = new THREE.MeshStandardMaterial({
+  color: '#e6f7ff',
+  emissive: '#8fdcff',
+  emissiveIntensity: 0.9,
+  roughness: 0.25,
+  flatShading: true,
+});
+
+function TubFrame() {
+  const e = 0.035;
+  const { w, l, h } = TUB;
+  const bars = [];
+  for (const y of [0.08, h]) {
+    for (const s of [-1, 1]) {
+      bars.push([[0, y, (s * l) / 2], [w + e, e, e]]);
+      bars.push([[(s * w) / 2, y, 0], [e, e, l + e]]);
+    }
+  }
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) bars.push([[(sx * w) / 2, 0.08 + (h - 0.08) / 2, (sz * l) / 2], [e, h - 0.08, e]]);
+  return bars.map(([p, s], i) => (
+    <mesh key={i} material={frameMat} position={p}>
+      <boxGeometry args={s} />
+    </mesh>
+  ));
+}
+
+function CrushedIce({ seed }) {
+  const mesh = useMemo(() => {
+    const r = rng(seed + 101);
+    const n = Q.low ? 70 : 160;
+    const im = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), iceMat, n);
+    const o = new THREE.Object3D();
+    for (let i = 0; i < n; i++) {
+      const u = (r() - 0.5) * (TUB.w - 0.12);
+      const v = (r() - 0.5) * (TUB.l - 0.12);
+      const mound = 0.05 * (1 - Math.min(1, (u * u) / 0.2 + (v * v) / 0.15));
+      const deep = i % 5 === 0;
+      o.position.set(u, deep ? 0.15 + r() * (TUB.h - 0.35) : TUB.h - 0.08 + mound + r() * 0.04, v);
+      o.rotation.set(r() * 3, r() * 3, r() * 3);
+      const s = 0.025 + r() * 0.035;
+      o.scale.set(s, s * (0.7 + r() * 0.5), s);
+      o.updateMatrix();
+      im.setMatrixAt(i, o.matrix);
+    }
+    im.userData.noShadow = true;
+    return im;
+  }, [seed]);
+  return <primitive object={mesh} />;
+}
+
 function Tub({ x, z, ripple, shell, cube, seed }) {
   const cubes = useRef([]);
   const data = useMemo(() => {
@@ -158,7 +209,10 @@ function Tub({ x, z, ripple, shell, cube, seed }) {
           </mesh>
         ))}
       </group>
-      {/* floating ice */}
+      {/* black metal frame on every edge */}
+      <TubFrame />
+      {/* crushed ice heaped on top, a few bigger cubes bobbing */}
+      <CrushedIce seed={seed} />
       {data.map((d, i) => (
         <mesh key={i} ref={(m) => (cubes.current[i] = m)} material={cube} position={[d.x, TUB.h - 0.06, d.z]} scale={d.s}>
           <boxGeometry args={[1, 0.8, 1]} />
@@ -233,7 +287,7 @@ export default function IceTubs() {
       {TUBS.map((t, i) => (
         <Tub key={i} {...t} ripple={i ? ripple2 : ripple} shell={shell} cube={cube} seed={i * 17 + 3} />
       ))}
-      <pointLight position={[-2.2, 1.7, 2.6]} color={C.ice} intensity={6} distance={5.5} decay={1.6} />
+      <pointLight position={[-2.45, 1.8, 2.3]} color={C.ice} intensity={7} distance={5.5} decay={1.6} />
     </group>
   );
 }

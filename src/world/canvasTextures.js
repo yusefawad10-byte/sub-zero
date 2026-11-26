@@ -97,6 +97,26 @@ export function backLetteringTexture() {
   return toTex(c);
 }
 
+// Big side lettering from the renders: "SUB" in cream over "ZERO" in blue, with a small wave mark.
+export function sideLetteringTexture() {
+  const [c, x] = make(1024, 900);
+  x.textAlign = 'left';
+  x.textBaseline = 'alphabetic';
+  x.strokeStyle = '#7fc6ee';
+  x.lineWidth = 9;
+  x.lineJoin = 'round';
+  x.beginPath();
+  for (let i = 0; i <= 8; i++) x.lineTo(70 + i * 26, 150 + (i % 2 ? -14 : 14));
+  x.stroke();
+  x.fillStyle = '#ece7e0';
+  x.font = `330px ${HEAD}`;
+  x.fillText('SUB', 50, 470);
+  x.fillStyle = '#5bb2e6';
+  fit(x, 'ZERO', (s) => `${s}px ${HEAD}`, 330, 940);
+  x.fillText('ZERO', 50, 800);
+  return toTex(c);
+}
+
 export function signTexture() {
   const [c, x] = make(1024, 360);
   x.fillStyle = C.green;

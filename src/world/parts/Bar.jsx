@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import * as THREE from 'three';
 import { Q } from '../../quality';
-import { BAR, FRIDGE } from '../layout';
+import { BAR, FRIDGE, SHELVES } from '../layout';
 import { useSet } from '../textures';
 import { C } from '../canvasTextures';
 
@@ -77,55 +77,93 @@ function Bottle({ p, m, i, h = 0.18 }) {
   );
 }
 
+function Leafy({ p, s = 1, hang = false }) {
+  // a small bushy plant (or a trailing one when hung)
+  const leaves = useMemo(() => {
+    const out = [];
+    for (let i = 0; i < (hang ? 14 : 9); i++) {
+      const a = i * 2.39;
+      const r = hang ? 0.08 + (i % 3) * 0.05 : 0.05 + (i % 3) * 0.035;
+      out.push([Math.cos(a) * r, hang ? -i * 0.045 : 0.05 + (i % 4) * 0.035, Math.sin(a) * r, 0.05 + (i % 2) * 0.02]);
+    }
+    return out;
+  }, [hang]);
+  return (
+    <group position={p} scale={s}>
+      {!hang && (
+        <mesh position={[0, 0.05, 0]}>
+          <cylinderGeometry args={[0.06, 0.05, 0.1, 12]} />
+          <meshStandardMaterial color="#1b1b1b" roughness={0.6} />
+        </mesh>
+      )}
+      {leaves.map(([x, y, z, r], i) => (
+        <mesh key={i} position={[x, y + 0.08, z]} scale={[1, 0.7, 1]}>
+          <icosahedronGeometry args={[r, 0]} />
+          <meshStandardMaterial color={i % 2 ? '#3f8a3a' : '#5aa548'} roughness={0.7} flatShading />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function Towels({ p, n = 3 }) {
+  return (
+    <group position={p}>
+      {Array.from({ length: n }, (_, i) => (
+        <mesh key={i} position={[(i % 2) * 0.13 - 0.065, 0.04 + Math.floor(i / 2) * 0.075, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.038, 0.038, 0.2, 12]} />
+          <meshStandardMaterial color="#f1ece2" roughness={1} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
 export default function Bar() {
   const slats = useSet('dark_wooden_planks', 0.15, 1);
   const marble = useSet('marble_01', 1.5, 0.6);
-  const cedar = useSet('wood_planks', 1.5, 0.15);
   const m = useMats();
   const W = BAR.x1 - BAR.x0;
   const cx = (BAR.x0 + BAR.x1) / 2;
   const top = BAR.top;
-  const slatCount = 22;
-
+  const slatCount = 26;
   const shelves = [1.85, 2.3, 2.75];
-  const sx0 = 1.6;
-  const sx1 = 2.95;
+  const sw = SHELVES.x1 - SHELVES.x0;
+  const scx = (SHELVES.x0 + SHELVES.x1) / 2;
+  const fw = FRIDGE.x1 - FRIDGE.x0;
 
   return (
     <group>
-      {/* counter body + slat front */}
+      {/* counter body + dark slat front, warm strip under the top */}
       <mesh position={[cx, (F + top) / 2, (BAR.z0 + BAR.z1) / 2 - 0.02]}>
         <boxGeometry args={[W, top - F, BAR.z1 - BAR.z0 - 0.04]} />
-        <meshStandardMaterial color="#17110c" roughness={0.9} />
+        <meshStandardMaterial color="#0e0b09" roughness={0.9} />
       </mesh>
       {Array.from({ length: slatCount }, (_, i) => (
         <mesh key={i} position={[BAR.x0 + (W / slatCount) * (i + 0.5), (F + top) / 2 - 0.02, BAR.z1 - 0.01]}>
-          <boxGeometry args={[W / slatCount - 0.018, top - F - 0.06, 0.035]} />
-          <meshStandardMaterial {...slats} color="#5a3c28" roughness={0.6} />
+          <boxGeometry args={[W / slatCount - 0.016, top - F - 0.06, 0.035]} />
+          <meshStandardMaterial {...slats} color="#3a281c" roughness={0.6} />
         </mesh>
       ))}
-      {/* marble top */}
       <mesh position={[cx, top + 0.03, (BAR.z0 + BAR.z1) / 2 + 0.02]}>
         <boxGeometry args={[W + 0.1, 0.06, BAR.z1 - BAR.z0 + 0.1]} />
         <meshStandardMaterial {...marble} color="#f4f1ec" roughness={0.25} envMapIntensity={1.1} />
       </mesh>
-      {/* warm strip under the marble lip */}
       <mesh position={[cx, top - 0.01, BAR.z1 + 0.05]}>
         <boxGeometry args={[W, 0.015, 0.015]} />
-        <meshStandardMaterial color="#fff" emissive="#ffc27a" emissiveIntensity={3} toneMapped={false} />
+        <meshStandardMaterial color="#fff" emissive="#ffc27a" emissiveIntensity={3.2} toneMapped={false} />
       </mesh>
 
       {/* drinks on the counter */}
       {[0, 1, 2].map((i) => (
-        <Shake key={i} i={i} m={m} p={[1.72 + i * 0.17, top + 0.06, 0.28]} />
+        <Shake key={i} i={i} m={m} p={[1.0 + i * 0.17, top + 0.06, 0.15]} />
       ))}
-      <Coconut m={m} p={[2.38, top + 0.06, 0.24]} />
-      <Coconut m={m} p={[2.6, top + 0.06, 0.3]} />
+      <Coconut m={m} p={[1.7, top + 0.06, 0.12]} />
+      <Coconut m={m} p={[1.92, top + 0.06, 0.18]} />
       {[0, 1, 2].map((i) => (
-        <Bottle key={i} i={i} m={m} p={[2.85 + i * 0.1, top + 0.06, 0.28]} />
+        <Bottle key={i} i={i} m={m} p={[2.25 + i * 0.1, top + 0.06, 0.15]} />
       ))}
-      {/* blender */}
-      <group position={[3.28, top + 0.06, 0.05]}>
+      <group position={[3.15, top + 0.06, -0.05]}>
         <mesh position={[0, 0.06, 0]}>
           <boxGeometry args={[0.15, 0.12, 0.15]} />
           <meshStandardMaterial color="#111" roughness={0.4} metalness={0.3} />
@@ -143,58 +181,74 @@ export default function Bar() {
         </mesh>
       </group>
 
-      {/* cedar shelves on the back wall */}
+      {/* back shelves: plants on top, towels, bottles and coconuts below, warm LED under each */}
       {shelves.map((y, si) => (
         <group key={y}>
-          <mesh position={[(sx0 + sx1) / 2, y, -1.17]}>
-            <boxGeometry args={[sx1 - sx0, 0.04, 0.22]} />
-            <meshStandardMaterial {...cedar} color="#d9a06a" roughness={0.8} />
+          <mesh position={[scx, y, -1.17]}>
+            <boxGeometry args={[sw, 0.04, 0.22]} />
+            <meshStandardMaterial color="#c98f5a" roughness={0.75} />
           </mesh>
-          <mesh position={[(sx0 + sx1) / 2, y - 0.026, -1.075]}>
-            <boxGeometry args={[sx1 - sx0 - 0.04, 0.012, 0.012]} />
-            <meshStandardMaterial color="#fff" emissive="#ffc98a" emissiveIntensity={3.2} toneMapped={false} />
+          <mesh position={[scx, y - 0.026, -1.075]}>
+            <boxGeometry args={[sw - 0.04, 0.012, 0.012]} />
+            <meshStandardMaterial color="#fff" emissive="#ffc98a" emissiveIntensity={3.4} toneMapped={false} />
           </mesh>
-          {Array.from({ length: 7 }, (_, i) => {
-            const x = sx0 + 0.12 + i * 0.19;
+          {Array.from({ length: 8 }, (_, i) => {
+            const x = SHELVES.x0 + 0.13 + i * ((sw - 0.26) / 7);
             const p = [x, y + 0.02, -1.17];
-            return (i + si) % 3 === 0 ? (
-              <Coconut key={i} m={m} p={p} straw={false} />
-            ) : (
-              <Bottle key={i} m={m} i={i + si} p={p} h={0.2} />
-            );
+            if (si === 2) return <Leafy key={i} p={p} s={1.1} />;
+            if (si === 1 && i % 3 === 1) return <Towels key={i} p={p} />;
+            if ((i + si) % 4 === 0) return <Coconut key={i} m={m} p={p} straw={false} />;
+            return <Bottle key={i} m={m} i={i + si} p={p} h={0.2} />;
           })}
         </group>
       ))}
+      {/* plants on top of the fridge and trailing from the ceiling */}
+      {[2.7, 3.0, 3.3].map((x) => (
+        <Leafy key={x} p={[x, 2.42, -0.97]} s={1.2} />
+      ))}
+      {[[2.9, 3.35, 1.15], [0.75, 3.35, 1.1], [1.6, 3.35, -0.9]].map((p, i) => (
+        <Leafy key={i} p={p} s={1.4} hang />
+      ))}
 
-      {/* glowing drinks fridge */}
+      {/* double glass drinks fridge */}
       <group position={[(FRIDGE.x0 + FRIDGE.x1) / 2, F, (FRIDGE.z0 + FRIDGE.z1) / 2]}>
         <mesh position={[0, 0.9, 0]}>
-          <boxGeometry args={[FRIDGE.x1 - FRIDGE.x0, 1.8, FRIDGE.z1 - FRIDGE.z0]} />
-          <meshStandardMaterial color="#1b1d1f" metalness={0.6} roughness={0.4} />
+          <boxGeometry args={[fw, 1.8, FRIDGE.z1 - FRIDGE.z0]} />
+          <meshStandardMaterial color="#141517" metalness={0.6} roughness={0.4} />
         </mesh>
-        <mesh position={[0, 0.95, 0.296]}>
-          <planeGeometry args={[0.42, 1.5]} />
-          <meshStandardMaterial color="#cfefff" emissive="#d8f3ff" emissiveIntensity={1.6} toneMapped={false} />
-        </mesh>
-        {[0.4, 0.75, 1.1, 1.45].map((y, r) =>
-          [-0.13, 0, 0.13].map((x, i) => (
-            <Bottle key={`${r}${i}`} m={m} i={r + i} p={[x, y - 0.05, 0.25]} h={0.17} />
-          ))
-        )}
-        <mesh position={[0, 0.95, 0.305]}>
-          <planeGeometry args={[0.44, 1.52]} />
-          <meshStandardMaterial color="#e8f6ff" transparent opacity={0.12} roughness={0.02} metalness={0.5} depthWrite={false} />
+        {[-1, 1].map((s) => (
+          <group key={s} position={[(s * fw) / 4, 0, 0]}>
+            <mesh position={[0, 0.95, 0.296]}>
+              <planeGeometry args={[fw / 2 - 0.07, 1.55]} />
+              <meshStandardMaterial color="#cfefff" emissive="#d8f3ff" emissiveIntensity={1.4} toneMapped={false} />
+            </mesh>
+            {[0.35, 0.7, 1.05, 1.4].map((y, r) =>
+              [-0.13, -0.04, 0.05, 0.14].map((x, i) => (
+                <Bottle key={`${r}${i}`} m={m} i={r + i + (s > 0 ? 1 : 0)} p={[x * 0.95, y - 0.05, 0.25]} h={0.16} />
+              ))
+            )}
+            <mesh position={[0, 0.95, 0.305]}>
+              <planeGeometry args={[fw / 2 - 0.05, 1.58]} />
+              <meshStandardMaterial color="#e8f6ff" transparent opacity={0.12} roughness={0.02} metalness={0.5} depthWrite={false} />
+            </mesh>
+            <mesh position={[s * -0.18, 0.95, 0.33]}>
+              <boxGeometry args={[0.02, 0.4, 0.02]} />
+              <meshStandardMaterial color="#9aa0a6" metalness={0.9} roughness={0.2} />
+            </mesh>
+          </group>
+        ))}
+        <mesh position={[0, 0.95, 0.31]}>
+          <boxGeometry args={[0.03, 1.6, 0.03]} />
+          <meshStandardMaterial color="#141517" metalness={0.6} roughness={0.4} />
         </mesh>
         <mesh position={[0, 1.79, 0.305]}>
-          <planeGeometry args={[0.46, 0.06]} />
+          <planeGeometry args={[fw - 0.05, 0.05]} />
           <meshStandardMaterial color="#fff" emissive={C.ice} emissiveIntensity={2} toneMapped={false} />
         </mesh>
       </group>
 
-      <pointLight position={[2.45, 3.05, 0.4]} color="#ffcf9a" intensity={4} distance={4.5} decay={1.5} />
-      {Q.fullLights && (
-        <pointLight position={[3.3, 1.5, 0]} color="#cfefff" intensity={1.4} distance={2.2} decay={1.5} />
-      )}
+      <pointLight position={[1.9, 3.05, 0.4]} color="#ffcf9a" intensity={4.5} distance={4.5} decay={1.5} />
+      {Q.fullLights && <pointLight position={[3.0, 1.5, 0.1]} color="#cfefff" intensity={1.6} distance={2.4} decay={1.5} />}
     </group>
   );
 }
