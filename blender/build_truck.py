@@ -322,9 +322,29 @@ for z in (-0.5, -0.17, 0.17, 0.5):
 
 
 # ---------------------------------------------------------------- wheels
+def tread(name, x, z, radius=0.5, width=0.27, blocks=44):
+    """raised tread blocks all round the tyre, in two staggered rows"""
+    bm = bmesh.new()
+    for i in range(blocks):
+        for row, off in ((0, -0.07), (1, 0.07)):
+            a = (i + 0.5 * row) / blocks * math.tau
+            geom = bmesh.ops.create_cube(bm, size=1.0)
+            vs = geom["verts"]
+            # block: 0.045 along the tread, 0.11 across, 0.018 tall
+            bmesh.ops.transform(bm, matrix=Matrix.Diagonal((0.045, 0.11, 0.018, 1)), verts=vs)
+            bmesh.ops.translate(bm, vec=Vector((0, off, radius + 0.004)), verts=vs)
+            bmesh.ops.rotate(bm, verts=vs, cent=(0, 0, 0), matrix=Matrix.Rotation(a, 3, "Y"))
+            bmesh.ops.translate(bm, vec=T(x, 0.5, z), verts=vs)
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    return link(bpy.data.objects.new(name, me), "Rubber")
+
+
 def wheel(name, x, z, outward):
     """tyre + rim with hub, spokes and lug nuts; outward is +1/-1 along z"""
-    tyre = cylinder(f"{name}_Tyre", (x, 0.5, z), 0.5, 0.32, "z", "Rubber", verts=40, bevel=0.07, segs=4)
+    tyre = cylinder(f"{name}_Tyre", (x, 0.5, z), 0.49, 0.32, "z", "Rubber", verts=48, bevel=0.07, segs=4)
+    tread(f"{name}_Tread", x, z, radius=0.482)
     face = z + outward * 0.165
     cylinder(f"{name}_Rim", (x, 0.5, face), 0.31, 0.02, "z", "Chrome", verts=36)
     cylinder(f"{name}_RimDish", (x, 0.5, face + outward * 0.01), 0.22, 0.02, "z", "Alu", verts=32)

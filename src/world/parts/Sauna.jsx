@@ -35,6 +35,37 @@ function Bench({ z0, z1, y, slat }) {
   );
 }
 
+// A wall of individual horizontal cedar planks with natural colour variation and hairline gaps.
+function PlankWall({ origin, length, height, dir = 'x', normal = 1, cedar }) {
+  const mesh = useMemo(() => {
+    const ph = 0.095;
+    const n = Math.floor(height / ph);
+    const r = rng(Math.round(origin[0] * 100 + origin[2] * 37 + length * 11));
+    const mat = new THREE.MeshStandardMaterial({ ...cedar, color: '#ffffff', roughness: 0.68 });
+    const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), mat, n);
+    const o = new THREE.Object3D();
+    const c = new THREE.Color();
+    for (let i = 0; i < n; i++) {
+      const y = origin[1] + ph * (i + 0.5);
+      const inset = normal * (0.008 + r() * 0.003);
+      if (dir === 'x') {
+        o.position.set(origin[0] + length / 2, y, origin[2] + inset);
+        o.scale.set(length, ph - 0.006, 0.016);
+      } else {
+        o.position.set(origin[0] + inset, y, origin[2] + length / 2);
+        o.scale.set(0.016, ph - 0.006, length);
+      }
+      o.updateMatrix();
+      im.setMatrixAt(i, o.matrix);
+      c.setHSL(0.075 + r() * 0.015, 0.5 + r() * 0.12, 0.5 + r() * 0.1);
+      im.setColorAt(i, c);
+    }
+    im.receiveShadow = true;
+    return im;
+  }, [origin, length, height, dir, normal, cedar]);
+  return <primitive object={mesh} />;
+}
+
 export default function Sauna() {
   const cedar = useSet('wood_planks', 1, 1.6);
   const slatTex = useSet('wood_planks', 0.4, 0.2);
@@ -75,14 +106,13 @@ export default function Sauna() {
   return (
     <group>
       {/* cedar lining: back, left, right walls and ceiling */}
-      <mesh position={[cx, F + H / 2, SAUNA.z0 + 0.01]}>
+      <mesh position={[cx, F + H / 2, SAUNA.z0 + 0.004]}>
         <planeGeometry args={[SAUNA.x1 - SAUNA.x0, H]} />
-        {wall}
+        <meshStandardMaterial color="#3a2414" roughness={0.9} />
       </mesh>
-      <mesh position={[SAUNA.x0 + 0.01, F + H / 2, (SAUNA.z0 + FRONT) / 2]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[FRONT - SAUNA.z0, H]} />
-        {wall}
-      </mesh>
+      <PlankWall origin={[SAUNA.x0, F, SAUNA.z0]} length={SAUNA.x1 - SAUNA.x0 - 0.05} height={H} dir="x" normal={1} cedar={cedar} />
+      <PlankWall origin={[SAUNA.x0, F, SAUNA.z0]} length={FRONT - SAUNA.z0} height={H} dir="z" normal={1} cedar={cedar} />
+      <PlankWall origin={[SAUNA.x1 - 0.05, F, SAUNA.z0]} length={FRONT - SAUNA.z0} height={H} dir="z" normal={-1} cedar={cedar} />
       <mesh position={[SAUNA.x1, F + H / 2, (SAUNA.z0 + FRONT) / 2]}>
         <boxGeometry args={[0.1, H, FRONT - SAUNA.z0]} />
         {wall}

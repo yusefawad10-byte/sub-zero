@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { booking, brand, planById, plans } from '../content';
+import { booking, brand, planById, plans, ui } from '../content';
 import { setState, useStore } from '../store';
 
 const today = () => {
@@ -8,9 +8,10 @@ const today = () => {
   return d.toISOString().slice(0, 10);
 };
 
-export default function Booking() {
+// One booking form, used both on the page and in the panel inside the 3D world.
+export function BookingForm({ compact = false }) {
   const plan = useStore((s) => s.plan);
-  const [form, setForm] = useState({ name: '', phone: '', slot: plan, date: '' });
+  const [form, setForm] = useState({ name: '', phone: '', slot: plan, date: '', time: '' });
   const [errors, setErrors] = useState({});
   const [done, setDone] = useState(null);
 
@@ -40,9 +41,72 @@ export default function Booking() {
       day: 'numeric',
       month: 'short',
     });
-    setDone(booking.success(form.name.trim().split(' ')[0], planById[form.slot].name, nice));
+    const when = form.time ? `${nice} at ${form.time}` : nice;
+    setDone(booking.success(form.name.trim().split(' ')[0], planById[form.slot].name, when));
   };
 
+  const selected = planById[form.slot];
+
+  return (
+    <form className={`book-form ${compact ? 'compact' : ''}`} onSubmit={submit} noValidate>
+      <label>
+        {booking.slot}
+        <select value={form.slot} onChange={set('slot')}>
+          {plans.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name} · {p.price}
+            </option>
+          ))}
+        </select>
+      </label>
+      {selected && (
+        <p className="book-price">
+          <strong>{selected.price}</strong> · {selected.detail}
+        </p>
+      )}
+      <div className="book-row">
+        <label>
+          {booking.date}
+          <input type="date" min={today()} value={form.date} onChange={set('date')} aria-invalid={!!errors.date} />
+          {errors.date && <span className="err">{errors.date}</span>}
+        </label>
+        <label>
+          {ui.time}
+          <input type="time" value={form.time} onChange={set('time')} />
+        </label>
+      </div>
+      <label>
+        {booking.name}
+        <input value={form.name} onChange={set('name')} autoComplete="name" aria-invalid={!!errors.name} />
+        {errors.name && <span className="err">{errors.name}</span>}
+      </label>
+      <label>
+        {booking.phone}
+        <input
+          value={form.phone}
+          onChange={set('phone')}
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="+971 50 123 4567"
+          aria-invalid={!!errors.phone}
+        />
+        {errors.phone && <span className="err">{errors.phone}</span>}
+      </label>
+      <button className="btn" type="submit">
+        {booking.submit}
+      </button>
+      {done && (
+        <div className="success" role="status">
+          <p>{done}</p>
+          <p className="note">{booking.demoNote}</p>
+        </div>
+      )}
+    </form>
+  );
+}
+
+export default function Booking() {
   return (
     <section id="book" className="section section-cream">
       <div className="wrap book">
@@ -51,50 +115,7 @@ export default function Booking() {
           <h2>{booking.title}</h2>
           <p className="lead">{brand.taglines[1]}</p>
         </div>
-        <form className="book-form" onSubmit={submit} noValidate>
-          <label>
-            {booking.name}
-            <input value={form.name} onChange={set('name')} autoComplete="name" aria-invalid={!!errors.name} />
-            {errors.name && <span className="err">{errors.name}</span>}
-          </label>
-          <label>
-            {booking.phone}
-            <input
-              value={form.phone}
-              onChange={set('phone')}
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              placeholder="+971 50 123 4567"
-              aria-invalid={!!errors.phone}
-            />
-            {errors.phone && <span className="err">{errors.phone}</span>}
-          </label>
-          <label>
-            {booking.slot}
-            <select value={form.slot} onChange={set('slot')}>
-              {plans.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} · {p.price}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            {booking.date}
-            <input type="date" min={today()} value={form.date} onChange={set('date')} aria-invalid={!!errors.date} />
-            {errors.date && <span className="err">{errors.date}</span>}
-          </label>
-          <button className="btn" type="submit">
-            {booking.submit}
-          </button>
-          {done && (
-            <div className="success" role="status">
-              <p>{done}</p>
-              <p className="note">{booking.demoNote}</p>
-            </div>
-          )}
-        </form>
+        <BookingForm />
       </div>
     </section>
   );

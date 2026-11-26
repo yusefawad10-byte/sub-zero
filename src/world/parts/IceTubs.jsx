@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { Q } from '../../quality';
 import { TUB, TUBS } from '../layout';
 import { C, dropletNormalTexture, rippleNormalTexture, rng } from '../canvasTextures';
+import { iceGeometries } from './props';
 
 const mistVert = /* glsl */ `
   uniform float uTime;
@@ -137,28 +138,37 @@ function TubFrame() {
   ));
 }
 
+// Irregular translucent ice chunks: three jittered shapes, varied sizes, mostly floating
+// near the surface with some suspended lower in the water.
+const ICE_GEOS = iceGeometries(7, 3);
 function CrushedIce({ seed }) {
-  const mesh = useMemo(() => {
+  const meshes = useMemo(() => {
     const r = rng(seed + 101);
-    const n = Q.low ? 70 : 160;
-    const im = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), iceMat, n);
-    const o = new THREE.Object3D();
-    for (let i = 0; i < n; i++) {
-      const u = (r() - 0.5) * (TUB.w - 0.12);
-      const v = (r() - 0.5) * (TUB.l - 0.12);
-      const mound = 0.05 * (1 - Math.min(1, (u * u) / 0.2 + (v * v) / 0.15));
-      const deep = i % 5 === 0;
-      o.position.set(u, deep ? 0.15 + r() * (TUB.h - 0.35) : TUB.h - 0.08 + mound + r() * 0.04, v);
-      o.rotation.set(r() * 3, r() * 3, r() * 3);
-      const s = 0.025 + r() * 0.035;
-      o.scale.set(s, s * (0.7 + r() * 0.5), s);
-      o.updateMatrix();
-      im.setMatrixAt(i, o.matrix);
-    }
-    im.userData.noShadow = true;
-    return im;
+    const n = Q.low ? 60 : 150;
+    const per = Math.ceil(n / ICE_GEOS.length);
+    const col = new THREE.Color();
+    return ICE_GEOS.map((g, gi) => {
+      const im = new THREE.InstancedMesh(g, iceMat, per);
+      const o = new THREE.Object3D();
+      for (let i = 0; i < per; i++) {
+        const u = (r() - 0.5) * (TUB.w - 0.12);
+        const v = (r() - 0.5) * (TUB.l - 0.12);
+        const mound = 0.04 * (1 - Math.min(1, (u * u) / 0.2 + (v * v) / 0.15));
+        const deep = (i + gi) % 5 === 0;
+        o.position.set(u, deep ? 0.18 + r() * (TUB.h - 0.4) : TUB.h - 0.09 + mound + r() * 0.035, v);
+        o.rotation.set(r() * 6, r() * 6, r() * 6);
+        const s = 0.018 + Math.pow(r(), 1.6) * 0.05;
+        o.scale.set(s * (0.8 + r() * 0.5), s * (0.6 + r() * 0.5), s * (0.8 + r() * 0.5));
+        o.updateMatrix();
+        im.setMatrixAt(i, o.matrix);
+        col.setHSL(0.55, 0.35 + r() * 0.3, 0.85 + r() * 0.12);
+        im.setColorAt(i, col);
+      }
+      im.userData.noShadow = true;
+      return im;
+    });
   }, [seed]);
-  return <primitive object={mesh} />;
+  return meshes.map((m, i) => <primitive key={i} object={m} />);
 }
 
 function Tub({ x, z, ripple, shell, cube, seed }) {

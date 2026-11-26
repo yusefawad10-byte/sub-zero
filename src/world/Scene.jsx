@@ -20,6 +20,8 @@ import Skyline from './parts/Skyline';
 import StreetLamps from './parts/StreetLamps';
 import StretchTable from './parts/StretchTable';
 import Truck from './parts/Truck';
+import { Service } from './Interact';
+import { ContactShadows } from '@react-three/drei';
 
 // Poly Haven "modern_buildings_night", tonemapped JPG, as the environment map.
 function Environment() {
@@ -111,14 +113,27 @@ export default function Scene() {
       <Truck />
       <Deck />
       <Awning />
-      <IceTubs />
-      <Sauna />
+      <Service id="tubs">
+        <IceTubs />
+      </Service>
+      <Service id="sauna">
+        <Sauna />
+      </Service>
       <Cafe />
-      <Bar />
+      <Service id="bar">
+        <Bar />
+      </Service>
       <Chalkboard />
       <MidTruck />
-      <StretchTable />
-      <DjBooth />
+      <Service id="stretch">
+        <StretchTable />
+      </Service>
+      <Service id="dj">
+        <DjBooth />
+      </Service>
+      {/* soft contact shadows under the deck furniture and the café */}
+      <ContactShadows position={[0.8, 0.605, 1.2]} scale={[16, 8]} far={1.4} blur={2.2} opacity={0.55} resolution={512} frames={1} color="#000000" />
+      <ContactShadows position={[0, 0.005, 3]} scale={[30, 20]} far={2.5} blur={2.6} opacity={0.6} resolution={512} frames={1} color="#000000" />
       <Palms />
       <Festoons />
       <StreetLamps />

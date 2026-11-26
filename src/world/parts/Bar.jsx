@@ -4,6 +4,8 @@ import { Q } from '../../quality';
 import { BAR, FRIDGE, SHELVES } from '../layout';
 import { useSet } from '../textures';
 import { C, leafTexture, rng } from '../canvasTextures';
+import { Bottle as PropBottle, FoldedTowel } from './props';
+import { RoundedBox } from '@react-three/drei';
 
 const F = 0.6;
 const SHAKE = ['#6b4430', '#e7a6b0', '#efe2c5'];
@@ -64,17 +66,8 @@ function Coconut({ p, m, straw = true }) {
   );
 }
 
-function Bottle({ p, m, i, h = 0.18 }) {
-  return (
-    <group position={p}>
-      <mesh material={m.drinks[i % m.drinks.length]} position={[0, h / 2, 0]}>
-        <cylinderGeometry args={[0.03, 0.03, h, 14]} />
-      </mesh>
-      <mesh material={m.cap} position={[0, h + 0.015, 0]}>
-        <cylinderGeometry args={[0.016, 0.016, 0.03, 10]} />
-      </mesh>
-    </group>
-  );
+function Bottle({ p, i, h = 0.18 }) {
+  return <PropBottle p={p} i={i} kind={h >= 0.19 ? 'sport' : 'juice'} s={h / 0.19} ry={i * 0.7} />;
 }
 
 // Real-looking foliage: leaf-shaped cards (alpha-tested texture) in one instanced mesh per plant.
@@ -140,14 +133,108 @@ export function Leafy({ p, s = 1, hang = false, seed = 1 }) {
   );
 }
 
-function Towels({ p, n = 3 }) {
+function Towels({ p }) {
   return (
     <group position={p}>
-      {Array.from({ length: n }, (_, i) => (
-        <mesh key={i} position={[(i % 2) * 0.13 - 0.065, 0.04 + Math.floor(i / 2) * 0.075, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.038, 0.038, 0.2, 12]} />
-          <meshStandardMaterial color="#f1ece2" roughness={1} />
+      <FoldedTowel p={[0, 0, 0]} w={0.22} d={0.17} layers={3} />
+    </group>
+  );
+}
+
+// A real commercial fridge: rounded black cabinet, lit header sign, framed glass doors
+// with gaskets and bar handles, wire shelves, LED strips down the sides, bottles, kick grille.
+function CommercialFridge({ m }) {
+  const fw = FRIDGE.x1 - FRIDGE.x0;
+  const fd = FRIDGE.z1 - FRIDGE.z0;
+  const H = 1.85;
+  const mats = useMemo(
+    () => ({
+      body: new THREE.MeshPhysicalMaterial({ color: '#0c0d0f', roughness: 0.35, metalness: 0.5, clearcoat: 0.6 }),
+      inner: new THREE.MeshStandardMaterial({ color: '#dfe9ee', roughness: 0.5, emissive: '#cfe9ff', emissiveIntensity: 0.9 }),
+      frame: new THREE.MeshStandardMaterial({ color: '#111214', roughness: 0.3, metalness: 0.7 }),
+      gasket: new THREE.MeshStandardMaterial({ color: '#050505', roughness: 0.9 }),
+      chrome: new THREE.MeshStandardMaterial({ color: '#c8ccd0', roughness: 0.15, metalness: 1 }),
+      wire: new THREE.MeshStandardMaterial({ color: '#b9bec4', roughness: 0.3, metalness: 0.9 }),
+      led: new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#d8f3ff', emissiveIntensity: 3, toneMapped: false }),
+      glass: new THREE.MeshPhysicalMaterial({ color: '#e8f6ff', roughness: 0.03, clearcoat: 1, transparent: true, opacity: 0.14, depthWrite: false }),
+      sign: new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#65CFFF', emissiveIntensity: 1.6, toneMapped: false }),
+    }),
+    []
+  );
+  const doorW = fw / 2 - 0.03;
+  const shelfYs = [0.32, 0.66, 1.0, 1.34];
+  return (
+    <group position={[(FRIDGE.x0 + FRIDGE.x1) / 2, F, (FRIDGE.z0 + FRIDGE.z1) / 2]}>
+      {/* open-front cabinet: sides, top header, base plinth and back */}
+      {[-1, 1].map((sx) => (
+        <RoundedBox key={sx} args={[0.05, H, fd]} radius={0.018} smoothness={3} position={[sx * (fw / 2 - 0.025), H / 2 + 0.06, 0]} material={mats.body} />
+      ))}
+      <RoundedBox args={[fw, 0.16, fd]} radius={0.018} smoothness={3} position={[0, H - 0.02, 0]} material={mats.body} />
+      <RoundedBox args={[fw, 0.2, fd]} radius={0.018} smoothness={3} position={[0, 0.16, 0]} material={mats.body} />
+      <mesh position={[0, H / 2 + 0.06, -fd / 2 + 0.02]} material={mats.body}>
+        <boxGeometry args={[fw, H, 0.04]} />
+      </mesh>
+      {/* lit interior back and sides */}
+      <mesh position={[0, 0.95, -fd / 2 + 0.045]} material={mats.inner}>
+        <planeGeometry args={[fw - 0.08, 1.5]} />
+      </mesh>
+      {/* header with the lit sign */}
+      <mesh position={[0, H - 0.06, fd / 2 + 0.002]} material={mats.sign}>
+        <planeGeometry args={[fw - 0.12, 0.07]} />
+      </mesh>
+      {/* kick plate grille */}
+      {Array.from({ length: 9 }, (_, i) => (
+        <mesh key={i} position={[-fw / 2 + 0.1 + i * ((fw - 0.2) / 8), 0.12, fd / 2 + 0.003]} material={mats.gasket}>
+          <boxGeometry args={[0.05, 0.06, 0.004]} />
         </mesh>
+      ))}
+      {/* feet */}
+      {[-1, 1].map((sx) => [-1, 1].map((sz) => (
+        <mesh key={`${sx}${sz}`} position={[sx * (fw / 2 - 0.06), 0.03, sz * (fd / 2 - 0.06)]} material={mats.frame}>
+          <cylinderGeometry args={[0.02, 0.025, 0.06, 10]} />
+        </mesh>
+      )))}
+      {/* wire shelves and bottles */}
+      {shelfYs.map((y, r) => (
+        <group key={y}>
+          {Array.from({ length: 7 }, (_, k) => (
+            <mesh key={k} position={[0, y, -fd / 2 + 0.1 + k * 0.06]} rotation={[0, 0, Math.PI / 2]} material={mats.wire}>
+              <cylinderGeometry args={[0.004, 0.004, fw - 0.1, 6]} />
+            </mesh>
+          ))}
+          {Array.from({ length: 7 }, (_, k) => (
+            <Bottle key={k} i={r + k} p={[-fw / 2 + 0.11 + k * ((fw - 0.22) / 6), y + 0.006, 0.02 - (k % 2) * 0.08]} h={r % 2 ? 0.17 : 0.19} />
+          ))}
+        </group>
+      ))}
+      {/* LED strips down the inside edges */}
+      {[-1, 1].map((sx) => (
+        <mesh key={sx} position={[sx * (fw / 2 - 0.05), 0.95, fd / 2 - 0.06]} material={mats.led}>
+          <boxGeometry args={[0.012, 1.45, 0.012]} />
+        </mesh>
+      ))}
+      {/* two framed glass doors with gaskets and bar handles */}
+      {[-1, 1].map((sx) => (
+        <group key={sx} position={[(sx * fw) / 4, 0.95, fd / 2 + 0.02]}>
+          <mesh material={mats.glass} renderOrder={3}>
+            <planeGeometry args={[doorW - 0.06, 1.52]} />
+          </mesh>
+          {[[0, 0.79, doorW, 0.06], [0, -0.79, doorW, 0.06], [-doorW / 2 + 0.02, 0, 0.045, 1.64], [doorW / 2 - 0.02, 0, 0.045, 1.64]].map(([x, y, w, h], i) => (
+            <mesh key={i} position={[x, y, 0]} material={mats.frame}>
+              <boxGeometry args={[w, h, 0.035]} />
+            </mesh>
+          ))}
+          <group position={[-sx * (doorW / 2 - 0.08), 0, 0.045]}>
+            <mesh material={mats.chrome}>
+              <cylinderGeometry args={[0.011, 0.011, 0.5, 14]} />
+            </mesh>
+            {[-0.22, 0.22].map((y) => (
+              <mesh key={y} position={[0, y, -0.022]} rotation={[Math.PI / 2, 0, 0]} material={mats.chrome}>
+                <cylinderGeometry args={[0.007, 0.007, 0.04, 10]} />
+              </mesh>
+            ))}
+          </group>
+        </group>
       ))}
     </group>
   );
@@ -251,42 +338,8 @@ export default function Bar() {
         <Leafy key={i} p={p} s={1.4} hang />
       ))}
 
-      {/* double glass drinks fridge */}
-      <group position={[(FRIDGE.x0 + FRIDGE.x1) / 2, F, (FRIDGE.z0 + FRIDGE.z1) / 2]}>
-        <mesh position={[0, 0.9, 0]}>
-          <boxGeometry args={[fw, 1.8, FRIDGE.z1 - FRIDGE.z0]} />
-          <meshStandardMaterial color="#141517" metalness={0.6} roughness={0.4} />
-        </mesh>
-        {[-1, 1].map((s) => (
-          <group key={s} position={[(s * fw) / 4, 0, 0]}>
-            <mesh position={[0, 0.95, 0.296]}>
-              <planeGeometry args={[fw / 2 - 0.07, 1.55]} />
-              <meshStandardMaterial color="#cfefff" emissive="#d8f3ff" emissiveIntensity={1.4} toneMapped={false} />
-            </mesh>
-            {[0.35, 0.7, 1.05, 1.4].map((y, r) =>
-              [-0.13, -0.04, 0.05, 0.14].map((x, i) => (
-                <Bottle key={`${r}${i}`} m={m} i={r + i + (s > 0 ? 1 : 0)} p={[x * 0.95, y - 0.05, 0.25]} h={0.16} />
-              ))
-            )}
-            <mesh position={[0, 0.95, 0.305]}>
-              <planeGeometry args={[fw / 2 - 0.05, 1.58]} />
-              <meshStandardMaterial color="#e8f6ff" transparent opacity={0.12} roughness={0.02} metalness={0.5} depthWrite={false} />
-            </mesh>
-            <mesh position={[s * -0.18, 0.95, 0.33]}>
-              <boxGeometry args={[0.02, 0.4, 0.02]} />
-              <meshStandardMaterial color="#9aa0a6" metalness={0.9} roughness={0.2} />
-            </mesh>
-          </group>
-        ))}
-        <mesh position={[0, 0.95, 0.31]}>
-          <boxGeometry args={[0.03, 1.6, 0.03]} />
-          <meshStandardMaterial color="#141517" metalness={0.6} roughness={0.4} />
-        </mesh>
-        <mesh position={[0, 1.79, 0.305]}>
-          <planeGeometry args={[fw - 0.05, 0.05]} />
-          <meshStandardMaterial color="#fff" emissive={C.ice} emissiveIntensity={2} toneMapped={false} />
-        </mesh>
-      </group>
+      {/* commercial double glass-door drinks fridge */}
+      <CommercialFridge m={m} />
 
       {Q.fullLights && <pointLight position={[(FRIDGE.x0 + FRIDGE.x1) / 2, 1.5, 0.1]} color="#cfefff" intensity={1.6} distance={2.4} decay={1.5} />}
     </group>

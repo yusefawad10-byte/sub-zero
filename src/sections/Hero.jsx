@@ -1,9 +1,9 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
-import { brand, intro } from '../content';
+import { brand, intro, ui as T } from '../content';
 import { use3D } from '../quality';
 import { setState, useStore } from '../store';
 import { input } from '../world/input';
-import Hud from './Hud';
+import Hud, { tourCmd } from './Hud';
 import Logo from './Logo';
 import StaticHero from './StaticHero';
 
@@ -26,6 +26,16 @@ function IntroPanel() {
             aria-live="polite"
           >
             {loaded ? intro.walk : intro.loading(progress)}
+          </button>
+          <button
+            className="btn btn-ghost"
+            disabled={!loaded}
+            onClick={() => {
+              setState({ mode: 'walk' });
+              tourCmd('start');
+            }}
+          >
+            {T.startTour}
           </button>
           <a className="btn btn-ghost" href="#book">
             {intro.book}

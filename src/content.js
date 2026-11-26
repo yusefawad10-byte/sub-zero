@@ -185,3 +185,134 @@ export const staticHero = {
   note: 'The 3D walk-through is switched off on this device. Here is the truck.',
   alt: 'The Sub Zero truck at night with its side opened up: ice tubs, a cedar sauna, a bar and people after training.',
 };
+
+// ---------------------------------------------------------------------------
+// SERVICES: the single place for everything shown on the 3D service cards.
+// Prices, durations and what each includes come from the Sub Zero plans above
+// and the pitch deck. Anything not decided yet is written as TBC so it shows as
+// "To be confirmed" on the site instead of a made-up number.
+// `plan` links a service to the booking form's slot type.
+// ---------------------------------------------------------------------------
+export const TBC = null;
+
+export const services = {
+  tubs: {
+    name: 'Ice bath',
+    accent: 'ice',
+    price: 'AED 60',
+    priceNote: 'Drop-in slot, ice bath and sauna',
+    duration: '20 minutes (one slot: tub, sauna, out)',
+    description: 'Two clear tanks of icy water with chillers, lit from below. Get in up to the chest and breathe slowly.',
+    benefits: ['Cold-water recovery after training', 'Supervised by trained staff', 'Safety brief before every slot'],
+    availability: TBC,
+    plan: 'dropin',
+    more: '#prices',
+  },
+  sauna: {
+    name: 'Cedar sauna',
+    accent: 'amber',
+    price: 'AED 60',
+    priceNote: 'Drop-in slot, ice bath and sauna',
+    duration: '20 minutes (one slot: tub, sauna, out)',
+    description: 'An on-board cedar sauna cabin with two-tier benches to warm up and relax the muscles.',
+    benefits: ['Warms and relaxes the muscles', 'Pairs with the ice bath for hot and cold', 'Towels provided'],
+    availability: TBC,
+    plan: 'dropin',
+    more: '#prices',
+  },
+  stretch: {
+    name: 'Guided stretching',
+    accent: 'amber',
+    price: TBC,
+    priceNote: 'Price for stretching on its own is not set yet',
+    duration: TBC,
+    description: 'Guided stretching after training, led by our staff, on a padded treatment table.',
+    benefits: ['Loosen up after padel, football or the gym', 'Led by our staff'],
+    availability: TBC,
+    plan: 'dropin',
+    more: '#prices',
+  },
+  bar: {
+    name: 'Recovery bar',
+    accent: 'amber',
+    price: 'AED 25',
+    priceNote: 'Per drink, no session needed',
+    duration: null,
+    description: 'Shakes, young coconuts and electrolytes from our bar.',
+    benefits: ['No session needed', 'Grab one after your slot'],
+    availability: TBC,
+    plan: 'bar',
+    more: '#prices',
+    menu: [
+      { name: 'Protein shake', price: 'AED 25', note: 'Chocolate, strawberry or vanilla' },
+      { name: 'Young coconut', price: 'AED 25', note: 'Fresh, with a straw' },
+      { name: 'Electrolytes', price: 'AED 25', note: 'Chilled, from the fridge' },
+    ],
+  },
+  dj: {
+    name: 'Club Night',
+    accent: 'ice',
+    price: 'AED 2,400',
+    priceNote: 'One flat fee for the whole truck',
+    duration: '4 hours parked',
+    description: 'A club books the whole truck for its players, with the DJ playing outside.',
+    benefits: ['Whole truck for your team', 'Ice baths, sauna, stretching and bar', 'DJ outside'],
+    availability: TBC,
+    plan: 'club',
+    more: '#prices',
+  },
+};
+
+// Combined packages (from the plans above).
+export const packages = [
+  { name: 'Drop-in', price: 'AED 60', detail: 'One 20-minute slot: ice bath and sauna.', plan: 'dropin' },
+  { name: 'Ten-slot Pass', price: 'AED 350', detail: 'Ten slots, used all month. AED 35 a session.', plan: 'pass' },
+  { name: 'Club Night', price: 'AED 2,400', detail: 'The whole truck for four hours.', plan: 'club' },
+];
+
+// Guided tour stops, in order. `service` opens that card when the tour arrives.
+export const tour = {
+  stops: [
+    { id: 'outside', title: 'The truck', service: null, line: 'Sub Zero parks where you train. The side opens into a recovery deck.' },
+    { id: 'tubs', title: 'Ice baths', service: 'tubs' },
+    { id: 'sauna', title: 'Sauna', service: 'sauna' },
+    { id: 'stretch', title: 'Recovery table', service: 'stretch' },
+    { id: 'bar', title: 'Recovery bar', service: 'bar' },
+    { id: 'finale', title: 'See you after training', service: null, line: 'Ice, heat, stretching and a drink, right where you train.' },
+  ],
+};
+
+export const ui = {
+  modeFree: 'Free exploration',
+  modeTour: 'Guided tour',
+  startTour: 'Start guided tour',
+  pause: 'Pause',
+  resume: 'Resume',
+  next: 'Next',
+  prev: 'Previous',
+  restart: 'Restart',
+  exitTour: 'Exit tour',
+  stop: (i, n, title) => `Stop ${String(i).padStart(2, '0')} / ${String(n).padStart(2, '0')} — ${title}`,
+  bookNow: 'Book now',
+  learnMore: 'Learn more',
+  tbc: 'To be confirmed',
+  availabilityTbc: 'Live availability is not connected yet',
+  close: 'Close',
+  controls: 'Controls',
+  controlsList: [
+    ['W A S D / arrows', 'Walk'],
+    ['Shift', 'Jog'],
+    ['Click + mouse', 'Look around (Esc to let go)'],
+    ['Hover or click', 'See a service, price and booking'],
+    ['E', 'Book the service in front of you'],
+  ],
+  controlsTouch: [
+    ['Left thumb', 'Walk'],
+    ['Drag on the right', 'Look around'],
+    ['Tap a service', 'See its price and book'],
+  ],
+  menu: 'Menu',
+  packages: 'Packages',
+  bookingTitle: 'Book a slot',
+  time: 'Time',
+};

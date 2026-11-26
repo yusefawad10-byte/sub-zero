@@ -84,6 +84,8 @@ export const JUMPS = {
   sauna: { pos: [-0.57, 2.1], look: [-0.57, 1.5, -1.0] },
   bar: { pos: [5.0, 2.35], look: [5.5, 2.0, -1.2] },
   outside: { pos: [SPAWN.x, SPAWN.z], look: SPAWN.look },
+  stretch: { pos: [1.85, 3.6], look: [1.85, 0.9, 2.45] },
+  fridge: { pos: [5.6, 1.6], look: [6.5, 1.3, -0.97] },
   // roughly the camera angle of the reference render (used for visual checks)
   reference: { pos: [-0.9, 8.6], look: [-0.3, 1.55, 0.6] },
 };
@@ -166,3 +168,25 @@ export function collides(x, z, feet) {
 export function insideTruck(x, z) {
   return x > BOX.x0 && x < BOX.x1 && z > BOX.z0 && z < BOX.z1;
 }
+
+// ---------- service anchors: where each floating card points to ----------
+// [x, y, z, half-width in metres] so cards open beside the object, not over it
+export const SERVICE_ANCHORS = {
+  tubs: [-2.45, 1.75, 2.05, 1.1],
+  sauna: [-0.57, 2.3, 1.15, 0.9],
+  stretch: [1.85, 1.45, 2.45, 1.0],
+  bar: [5.5, 2.1, 0.2, 1.6],
+  dj: [-5.4, 1.5, 6.2, 1.0],
+};
+
+// ---------- guided tour: stops and the walking legs between them ----------
+// Every leg is a list of [x, z] waypoints, checked to be clear of every collider
+// and step; the tour walks them at eye height.
+export const TOUR_STOPS = [
+  { pos: [-0.9, 9.6], look: [-1.6, 2.1, 1.3] }, // outside: full view of the branding
+  { pos: [-0.9, 3.45], look: [-2.5, 1.0, 2.05], leg: [[-0.6, 7.0], [-0.5, 4.4], [-0.7, 3.6]] }, // ice baths
+  { pos: [-0.57, 2.15], look: [-0.57, 1.5, -1.0], leg: [[-0.6, 2.7]] }, // sauna
+  { pos: [1.85, 3.5], look: [1.85, 0.95, 2.45], leg: [[-0.2, 2.9], [0.6, 3.45]] }, // stretch table
+  { pos: [5.0, 2.3], look: [5.5, 2.0, -1.2], leg: [[3.15, 3.0], [3.9, 2.0]] }, // bar
+  { pos: [-0.3, 12.5], look: [-0.2, 1.8, 1.0], leg: [[5.7, 2.45], [5.7, 3.6], [5.2, 5.5], [2.0, 9.5]] }, // finale
+];

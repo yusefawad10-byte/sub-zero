@@ -6,6 +6,7 @@ import { Q } from '../quality';
 import { setState } from '../store';
 import Effects from './Effects';
 import Player from './Player';
+import Interact from './Interact';
 import Scene, { Backdrop } from './Scene';
 
 function ProgressReporter() {
@@ -74,6 +75,7 @@ export default function World({ active }) {
           )}
         </Suspense>
         <Player />
+        <Interact />
         <Effects />
       </Canvas>
     </>
