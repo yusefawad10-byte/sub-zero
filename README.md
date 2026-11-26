@@ -28,3 +28,13 @@ npm run build:docs
 ```
 
 Builds into `docs/`, which GitHub Pages serves from the `main` branch.
+
+## The truck model
+
+The truck's cab, chassis, wheels and box shell are built in Blender from `blender/build_truck.py`. Rebuild the model after editing it:
+
+```bash
+/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup --python blender/build_truck.py -- --out public/static/models/truck.glb --preview /tmp/truck-previews
+```
+
+`--preview` also renders front, cab and rear images so you can check it before reloading the site.

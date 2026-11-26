@@ -99,7 +99,8 @@ export const COLLIDERS = [
   // truck shell
   c(-3.6, 3.75, -1.45, -1.27), // back wall
   c(3.58, 3.75, -1.45, 1.3), // rear end wall
-  c(-6.1, -3.58, -1.42, 1.42), // cab
+  c(-6.35, -3.58, -1.42, 1.42), // cab
+  c(-5.7, -5.5, -1.75, 1.75, 1.8, 2.6), // mirrors
   c(PANEL.x0, PANEL.x1 + 0.05, -1.3, 1.36), // closed panel section (storage behind)
   // sauna
   c(SAUNA.x0 - 0.05, SAUNA.door[0], 1.08, 1.2, 0.6, 3.4), // glass left of door
